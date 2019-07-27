@@ -12,7 +12,7 @@ struct UsersSearch: Codable {
     
     let totalCount: Int
     let incompleteResults: Bool
-    let items: [User]
+    let items: [Users]
 
     enum CodingKeys: String, CodingKey {
         case totalCount = "total_count"
@@ -21,7 +21,7 @@ struct UsersSearch: Codable {
     }
 }
 
-struct User: Codable {
+struct Users: Codable {
     let login: String?
     let id: Int?
     let nodeId: String?
