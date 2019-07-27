@@ -7,12 +7,15 @@
 //
 
 import UIKit
+import CoreData
+
 
 class SearchViewController: UIViewController {
     
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
     
+    var dataController: DataController!
     var users = [Users]()
     var currentSearchTask: URLSessionTask?
     

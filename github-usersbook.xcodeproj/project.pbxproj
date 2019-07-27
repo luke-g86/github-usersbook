@@ -14,6 +14,8 @@
 		0437CCBE22EC23CB00BC65B2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0437CCBC22EC23CB00BC65B2 /* LaunchScreen.storyboard */; };
 		0437CCC622EC4E6000BC65B2 /* Endpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0437CCC522EC4E6000BC65B2 /* Endpoints.swift */; };
 		0437CCCC22EC521200BC65B2 /* UsersSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0437CCCB22EC521200BC65B2 /* UsersSearch.swift */; };
+		0437CCCF22EC9E0000BC65B2 /* github-userbook.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0437CCCD22EC9DFF00BC65B2 /* github-userbook.xcdatamodeld */; };
+		0437CCD122EC9F7000BC65B2 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0437CCD022EC9F7000BC65B2 /* DataController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		0437CCBF22EC23CB00BC65B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0437CCC522EC4E6000BC65B2 /* Endpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoints.swift; sourceTree = "<group>"; };
 		0437CCCB22EC521200BC65B2 /* UsersSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersSearch.swift; sourceTree = "<group>"; };
+		0437CCCE22EC9E0000BC65B2 /* github-userbook.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "github-userbook.xcdatamodel"; sourceTree = "<group>"; };
+		0437CCD022EC9F7000BC65B2 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +79,8 @@
 			children = (
 				0437CCC522EC4E6000BC65B2 /* Endpoints.swift */,
 				0437CCCB22EC521200BC65B2 /* UsersSearch.swift */,
+				0437CCCD22EC9DFF00BC65B2 /* github-userbook.xcdatamodeld */,
+				0437CCD022EC9F7000BC65B2 /* DataController.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -166,6 +172,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0437CCCC22EC521200BC65B2 /* UsersSearch.swift in Sources */,
+				0437CCD122EC9F7000BC65B2 /* DataController.swift in Sources */,
+				0437CCCF22EC9E0000BC65B2 /* github-userbook.xcdatamodeld in Sources */,
 				0437CCB622EC23CA00BC65B2 /* SearchViewController.swift in Sources */,
 				0437CCC622EC4E6000BC65B2 /* Endpoints.swift in Sources */,
 				0437CCB422EC23CA00BC65B2 /* AppDelegate.swift in Sources */,
@@ -366,6 +374,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		0437CCCD22EC9DFF00BC65B2 /* github-userbook.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				0437CCCE22EC9E0000BC65B2 /* github-userbook.xcdatamodel */,
+			);
+			currentVersion = 0437CCCE22EC9E0000BC65B2 /* github-userbook.xcdatamodel */;
+			path = "github-userbook.xcdatamodeld";
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 0437CCA822EC23CA00BC65B2 /* Project object */;
 }
