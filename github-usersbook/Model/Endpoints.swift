@@ -66,6 +66,17 @@ class APIEndpoints {
         })
         task.resume()
     }
+    
+    class func search(query: String, completion: @escaping ([Users], Error?) -> Void) -> URLSessionTask {
+        let task = getDataFromGithub(url: APIEndpoints.baseURL.userSearch(query).url, response: UsersSearch.self) { (response, error) in
+            guard let response = response else {
+                completion([], error)
+                return
+            }
+            completion(response.items, nil)
+        }
+        return task
+    }
 }
 
 

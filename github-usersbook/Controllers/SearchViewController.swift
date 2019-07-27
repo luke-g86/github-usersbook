@@ -14,24 +14,24 @@ class SearchViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     var users = [Users]()
+    var currentSearchTask: URLSessionTask?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        _ = getUser { (users, error) in
-            if let users = users {
-                for a in users {
-                    print(a)
-                }
-            } else {
-                print(error)
-            }
-            
-        }
+//        _ = getUser { (users, error) in
+//            if let users = users {
+//                for a in users {
+//                    print(a)
+//                }
+//            } else {
+//                print(error)
+//            }
         
-    }
+        }
+    
     
     
     func getUser(completion: @escaping ([Users]?, Error?) -> Void) {
@@ -46,9 +46,36 @@ class SearchViewController: UIViewController {
     }
 }
 
+
+extension SearchViewController: UISearchBarDelegate {
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        currentSearchTask?.cancel()
+        currentSearchTask = APIEndpoints.search(query: searchText) { (users, error) in
+            print(users)
+            self.users = users
+            self.tableView.reloadData()
+        }
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = true
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.endEditing(true)
+    }
+    
+}
+
+
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return users.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -74,6 +101,4 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         }
         return cell
     }
-    
-    
 }
