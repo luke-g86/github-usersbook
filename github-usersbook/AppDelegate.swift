@@ -18,14 +18,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         dataController.load()
-        
-        let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+
+        // Reference to the persistance
         
         let tabBarController = window?.rootViewController as! UITabBarController
-        let vc = tabBarController.viewControllers?.first
-        vc.
-        
-        
+        for child in tabBarController.viewControllers ?? [] {
+            if let top = child as? DataControllerClient {
+                top.setDataController(stack: dataController)
+            }
+        }
         
         return true
     }

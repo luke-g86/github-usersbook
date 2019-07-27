@@ -12,6 +12,8 @@ import CoreData
 
 class SearchViewController: UIViewController {
     
+    
+    
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
     
@@ -104,4 +106,12 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         }
         return cell
     }
+}
+
+extension SearchViewController: DataControllerClient {
+    func setDataController(stack: DataController) {
+        self.dataController = stack
+    }
+    
+    
 }

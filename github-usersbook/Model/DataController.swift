@@ -9,6 +9,8 @@
 import Foundation
 import CoreData
 
+// Mark: - CoreData stack
+
 class DataController {
     
     let persistanceContainer: NSPersistentContainer
