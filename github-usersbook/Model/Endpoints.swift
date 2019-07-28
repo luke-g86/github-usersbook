@@ -14,10 +14,12 @@ class APIEndpoints {
         static let base = "https://api.github.com"
         
         case userSearch (String)
+        case userRepos (String)
         
         var stringUrlBody: String {
             switch self {
             case .userSearch (let query): return baseURL.base + "/search/users?q=\(query)"
+            case .userRepos (let userName): return baseURL.base + "/users/\(userName)/repos"
             }
         }
         var url: URL {
@@ -25,7 +27,11 @@ class APIEndpoints {
         }
     }
     
-    class func getDataFromGithub<ResponseType: Decodable>(url: URL, response: ResponseType.Type, completion: @escaping (ResponseType?, Error?) -> Void) -> URLSessionTask {
+    //MARK: - Main network connection
+    
+    // Generic structure of the network request
+        
+    class func getDataFromGithub<T: Decodable>(url: URL, response: T.Type, completion: @escaping (T?, Error?) -> Void) -> URLSessionTask {
         
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data else {
@@ -36,7 +42,7 @@ class APIEndpoints {
             }
             let decoder = JSONDecoder()
             do {
-                let requestObject = try decoder.decode(ResponseType.self, from: data)
+                let requestObject = try decoder.decode(T.self, from: data)
                 DispatchQueue.main.async {
                     completion(requestObject, nil)
                 }

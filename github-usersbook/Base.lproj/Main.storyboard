@@ -60,11 +60,27 @@
                     <connections>
                         <outlet property="searchBar" destination="oSO-i1-uf0" id="Wsb-pD-zoj"/>
                         <outlet property="tableView" destination="HLG-zd-52z" id="0V4-75-taD"/>
+                        <segue destination="qPz-Jl-weE" kind="show" id="gQU-dQ-Szr"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1957.9710144927537" y="86.383928571428569"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="bel-6b-CNB">
+            <objects>
+                <viewController id="qPz-Jl-weE" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="U5z-rY-4uz">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="n8D-IA-6D7"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="nMv-e5-TY6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2867" y="86"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="FAE-KI-0Rf">
@@ -72,6 +88,7 @@
                 <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="OBa-vl-6UR" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="c17-eB-IfO">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
@@ -83,11 +100,11 @@
             </objects>
             <point key="canvasLocation" x="137.68115942028987" y="86.383928571428569"/>
         </scene>
-        <!--Item-->
+        <!--Navigation Controller-->
         <scene sceneID="ocO-Ut-ReM">
             <objects>
                 <navigationController storyboardIdentifier="nav" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="sjG-hf-Eoh" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="rW6-A8-oYO"/>
+                    <tabBarItem key="tabBarItem" title="" image="List" id="rW6-A8-oYO"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Szy-6i-BHE">
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>
@@ -103,4 +120,7 @@
             <point key="canvasLocation" x="1047.8260869565217" y="86.383928571428569"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="List" width="36" height="36"/>
+    </resources>
 </document>
