@@ -30,7 +30,7 @@ class APIEndpoints {
     //MARK: - Main network connection
     
     // Generic structure of the network request
-    
+        
     class func getDataFromGithub<T: Decodable>(url: URL, response: T.Type, completion: @escaping (T?, Error?) -> Void) -> URLSessionTask {
         
         let task = URLSession.shared.dataTask(with: url) { data, response, error in

@@ -26,28 +26,6 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-//        _ = getUser { (users, error) in
-//            if let users = users {
-//                for a in users {
-//                    print(a)
-//                }
-//            } else {
-//                print(error)
-//            }
-        
-        }
-    
-    
-    
-    func getUser(completion: @escaping ([Users]?, Error?) -> Void) {
-        APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userSearch("luke-g86").url, response: UsersSearch.self) { (response, error) in
-            if let response = response {
-                completion(response.items, nil)
-            } else {
-                completion([], error)
-            }
-        }
-        print(APIEndpoints.baseURL.userSearch("luke-g86").url)
     }
 }
 
