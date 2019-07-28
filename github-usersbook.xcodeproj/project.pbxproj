@@ -17,6 +17,7 @@
 		0437CCCF22EC9E0000BC65B2 /* github-userbook.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0437CCCD22EC9DFF00BC65B2 /* github-userbook.xcdatamodeld */; };
 		0437CCD122EC9F7000BC65B2 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0437CCD022EC9F7000BC65B2 /* DataController.swift */; };
 		0437CCD522ECB7C100BC65B2 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0437CCD422ECB7C000BC65B2 /* Protocols.swift */; };
+		04F4C0AC22ED92080027ECF5 /* UsersRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		0437CCCE22EC9E0000BC65B2 /* github-userbook.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "github-userbook.xcdatamodel"; sourceTree = "<group>"; };
 		0437CCD022EC9F7000BC65B2 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		0437CCD422ECB7C000BC65B2 /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
+		04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersRepositories.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +84,7 @@
 			children = (
 				0437CCC522EC4E6000BC65B2 /* Endpoints.swift */,
 				0437CCCB22EC521200BC65B2 /* UsersSearch.swift */,
+				04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */,
 				0437CCCD22EC9DFF00BC65B2 /* github-userbook.xcdatamodeld */,
 				0437CCD022EC9F7000BC65B2 /* DataController.swift */,
 			);
@@ -178,6 +181,7 @@
 				0437CCD122EC9F7000BC65B2 /* DataController.swift in Sources */,
 				0437CCD522ECB7C100BC65B2 /* Protocols.swift in Sources */,
 				0437CCCF22EC9E0000BC65B2 /* github-userbook.xcdatamodeld in Sources */,
+				04F4C0AC22ED92080027ECF5 /* UsersRepositories.swift in Sources */,
 				0437CCB622EC23CA00BC65B2 /* SearchViewController.swift in Sources */,
 				0437CCC622EC4E6000BC65B2 /* Endpoints.swift in Sources */,
 				0437CCB422EC23CA00BC65B2 /* AppDelegate.swift in Sources */,
