@@ -25,9 +25,20 @@ class SearchViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     
+        setTableView()
+        
     }
+
+func setTableView() {
+    let tableView = UITableView(frame: self.view.frame)
+    tableView.delegate = self
+    tableView.dataSource = self
+    tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "searchCell")
+    tableView.tableHeaderView = searchBar
+    self.view.addSubview(tableView)
 }
 
+}
 
 extension SearchViewController: UISearchBarDelegate {
     
@@ -61,7 +72,7 @@ extension SearchViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell")!
+        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! CustomTableViewCell
         
         let user = users[indexPath.row]
         

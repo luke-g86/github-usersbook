@@ -20,6 +20,7 @@
 		04F4C0AC22ED92080027ECF5 /* UsersRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */; };
 		C1027DF922F280E4000A5B94 /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1027DF822F280E4000A5B94 /* DetailsViewController.swift */; };
 		C1027DFB22F2C2B2000A5B94 /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1027DFA22F2C2B2000A5B94 /* DetailsView.swift */; };
+		C1027DFD22F2DDE4000A5B94 /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1027DFC22F2DDE4000A5B94 /* CustomTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,7 @@
 		04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersRepositories.swift; sourceTree = "<group>"; };
 		C1027DF822F280E4000A5B94 /* DetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsViewController.swift; sourceTree = "<group>"; };
 		C1027DFA22F2C2B2000A5B94 /* DetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
+		C1027DFC22F2DDE4000A5B94 /* CustomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				C1027DFA22F2C2B2000A5B94 /* DetailsView.swift */,
+				C1027DFC22F2DDE4000A5B94 /* CustomTableViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -185,6 +188,7 @@
 			files = (
 				0437CCCC22EC521200BC65B2 /* UsersSearch.swift in Sources */,
 				C1027DFB22F2C2B2000A5B94 /* DetailsView.swift in Sources */,
+				C1027DFD22F2DDE4000A5B94 /* CustomTableViewCell.swift in Sources */,
 				0437CCD122EC9F7000BC65B2 /* DataController.swift in Sources */,
 				C1027DF922F280E4000A5B94 /* DetailsViewController.swift in Sources */,
 				0437CCD522ECB7C100BC65B2 /* Protocols.swift in Sources */,
