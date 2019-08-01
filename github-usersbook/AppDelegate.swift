@@ -21,13 +21,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Reference to the persistance
         
-        let tabBarController = window?.rootViewController as! UITabBarController
-        for child in tabBarController.viewControllers ?? [] {
+        /*
+        uard let splitViewController = window?.rootViewController as? UISplitViewController,
+        let leftNavController = splitViewController.viewControllers.first as? UINavigationController,
+        let masterViewController = leftNavController.topViewController as? MasterViewController,
+        let detailViewController = splitViewController.viewControllers.last as? DetailViewController
+        else { fatalError() }
+        
+        let firstMonster = masterViewController.monsters.first
+        detailViewController.monster = firstMonster
+        
+        return true
+         */
+ 
+        
+        let splitViewController = window?.rootViewController as! UISplitViewController
+        let leftViewController = splitViewController.viewControllers.first as! UITabBarController
+        for child in leftViewController.viewControllers ?? [] {
             if let top = child as? DataControllerClient {
                 top.setDataController(stack: dataController)
             }
         }
-        
+        let rightViewController = splitViewController.viewControllers.last as! UINavigationController
+        let detailsViewController = rightViewController.topViewController as! 
+        DetailsViewController
         return true
     }
 

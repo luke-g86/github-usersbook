@@ -18,6 +18,7 @@
 		0437CCD122EC9F7000BC65B2 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0437CCD022EC9F7000BC65B2 /* DataController.swift */; };
 		0437CCD522ECB7C100BC65B2 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0437CCD422ECB7C000BC65B2 /* Protocols.swift */; };
 		04F4C0AC22ED92080027ECF5 /* UsersRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */; };
+		C1027DF922F280E4000A5B94 /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1027DF822F280E4000A5B94 /* DetailsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		0437CCD022EC9F7000BC65B2 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		0437CCD422ECB7C000BC65B2 /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersRepositories.swift; sourceTree = "<group>"; };
+		C1027DF822F280E4000A5B94 /* DetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				0437CCB522EC23CA00BC65B2 /* SearchViewController.swift */,
+				C1027DF822F280E4000A5B94 /* DetailsViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -179,6 +182,7 @@
 			files = (
 				0437CCCC22EC521200BC65B2 /* UsersSearch.swift in Sources */,
 				0437CCD122EC9F7000BC65B2 /* DataController.swift in Sources */,
+				C1027DF922F280E4000A5B94 /* DetailsViewController.swift in Sources */,
 				0437CCD522ECB7C100BC65B2 /* Protocols.swift in Sources */,
 				0437CCCF22EC9E0000BC65B2 /* github-userbook.xcdatamodeld in Sources */,
 				04F4C0AC22ED92080027ECF5 /* UsersRepositories.swift in Sources */,
