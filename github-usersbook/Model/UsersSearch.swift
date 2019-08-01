@@ -25,7 +25,7 @@ struct Users: Codable {
     let login: String?
     let id: Int?
     let nodeId: String?
-    let avatar: String?
+    var avatar: String?
     let gravatar: String?
     let url: String?
     let htmlUrl: String?

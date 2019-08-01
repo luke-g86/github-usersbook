@@ -13,3 +13,7 @@ import Foundation
 protocol DataControllerClient {
     func setDataController(stack: DataController)
 }
+
+protocol UserSelectionDelegate: class {
+    func userSelected(_ newUser: Users)
+}

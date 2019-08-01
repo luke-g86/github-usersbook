@@ -36,18 +36,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
  
         
         let splitViewController = window?.rootViewController as! UISplitViewController
-        let leftViewController = splitViewController.viewControllers.first as! UITabBarController
-        for child in leftViewController.viewControllers ?? [] {
-            if let top = child as? DataControllerClient {
-                top.setDataController(stack: dataController)
-            }
-        }
+        let leftViewController = splitViewController.viewControllers.first as! UINavigationController
+//        for child in leftViewController.viewControllers ?? [] {
+//            if let top = child as? DataControllerClient {
+//                top.setDataController(stack: dataController)
+//            }
+//        }
+        let masterViewController = leftViewController.topViewController as! SearchViewController
         let rightViewController = splitViewController.viewControllers.last as! UINavigationController
-        let detailsViewController = rightViewController.topViewController as! 
+        let detailsViewController = rightViewController.topViewController as!
         DetailsViewController
         
         detailsViewController.navigationItem.leftItemsSupplementBackButton = true
-        detailsViewController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem
+        detailsViewController.navigationItem.leftBarButtonItem =
+            splitViewController.displayModeButtonItem
+  
+     masterViewController.delegate = detailsViewController
+        
         return true
     }
 
