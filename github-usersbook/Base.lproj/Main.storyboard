@@ -10,20 +10,21 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Details View Controller-->
         <scene sceneID="TZj-Nl-4NG">
             <objects>
-                <viewController storyboardIdentifier="detailsViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="EY6-1l-QXf" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="detailsViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="EY6-1l-QXf" customClass="DetailsViewController" customModule="github_usersbook" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="7CJ-0m-Urd">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="t93-oE-GjJ"/>
                     </view>
+                    <navigationItem key="navigationItem" id="3M3-Gu-YDP"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="v5A-CC-Zz7" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1202" y="20"/>
+            <point key="canvasLocation" x="2111.594202898551" y="19.419642857142858"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="nVc-u7-azh">
@@ -74,10 +75,10 @@
         <!--masterViewController-->
         <scene sceneID="LYT-Tm-vHy">
             <objects>
-                <splitViewController storyboardIdentifier="masterViewController" title="masterViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="gE7-YS-lDX" sceneMemberID="viewController">
+                <splitViewController title="masterViewController" id="gE7-YS-lDX" sceneMemberID="viewController">
                     <connections>
                         <segue destination="Vmu-QN-ghP" kind="relationship" relationship="masterViewController" id="E0i-j8-ebS"/>
-                        <segue destination="EY6-1l-QXf" kind="relationship" relationship="detailViewController" id="XAr-Ka-DHg"/>
+                        <segue destination="9Cy-6w-FmL" kind="relationship" relationship="detailViewController" id="XAr-Ka-DHg"/>
                     </connections>
                 </splitViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MWR-BL-AmH" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -90,6 +91,7 @@
                 <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="Vmu-QN-ghP" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="eEK-SI-t8y">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
@@ -100,6 +102,24 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5im-fc-BlP" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1201.449275362319" y="-628.125"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="n6m-lW-o3N">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="9Cy-6w-FmL" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="cYS-sD-eja">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="EY6-1l-QXf" kind="relationship" relationship="rootViewController" id="OyV-bG-cVO"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="y1Q-Vy-aJG" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1201.449275362319" y="19.419642857142858"/>
         </scene>
     </scenes>
 </document>

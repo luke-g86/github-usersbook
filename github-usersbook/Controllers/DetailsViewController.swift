@@ -11,5 +11,14 @@ import UIKit
 
 class DetailsViewController: UIViewController {
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.backgroundColor = UIColor.green
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        view.backgroundColor = UIColor.blue
+    }
     
 }

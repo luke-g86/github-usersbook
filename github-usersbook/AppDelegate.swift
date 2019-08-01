@@ -45,6 +45,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let rightViewController = splitViewController.viewControllers.last as! UINavigationController
         let detailsViewController = rightViewController.topViewController as! 
         DetailsViewController
+        
+        detailsViewController.navigationItem.leftItemsSupplementBackButton = true
+        detailsViewController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem
         return true
     }
 
