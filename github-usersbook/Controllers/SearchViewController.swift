@@ -25,9 +25,17 @@ class SearchViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     
+        self.tableView.rowHeight = 50
+        
     }
 }
 
+
+func configure() {
+    
+    
+    
+}
 
 extension SearchViewController: UISearchBarDelegate {
     
