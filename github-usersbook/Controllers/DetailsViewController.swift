@@ -12,6 +12,7 @@ import UIKit
 class DetailsViewController: UIViewController {
     
     
+    @IBOutlet weak var stackView: UIStackView!
     @IBOutlet weak var userAvatar: UIImageView!
     @IBOutlet weak var userLogin: UILabel!
     
@@ -25,7 +26,7 @@ class DetailsViewController: UIViewController {
     
     
     override func viewWillAppear(_ animated: Bool) {
-        
+
     }
     
     func presentData() {
@@ -36,6 +37,7 @@ class DetailsViewController: UIViewController {
         userLogin.text = selectedUser?.login
         downloadAvatar(avatar: avatar)
         
+        stackView.customize()
     }
     
     
