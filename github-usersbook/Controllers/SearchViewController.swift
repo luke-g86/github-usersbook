@@ -17,7 +17,7 @@ class SearchViewController: UITableViewController {
     var dataController: DataController!
     var users = [Users]()
     var currentSearchTask: URLSessionTask?
- 
+    var fetchedResultsController: NSFetchedResultsController<User>!
     
     weak var delegate: UserSelectionDelegate?
     
@@ -26,25 +26,81 @@ class SearchViewController: UITableViewController {
         super.viewDidLoad()
     
 //        self.tableView.rowHeight = 50
-        self.tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "searchCell")
+//        self.tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "searchCell")
+         setupFetchedResultsController()
     }
-}
-
-
-func configure() {
     
+    override func viewWillAppear(_ animated: Bool) {
+         setupFetchedResultsController()
+    }
     
+    func setupFetchedResultsController(_ searchText: String? = nil) {
+        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        if searchText != nil {
+       let predicate = NSPredicate(format: "login contains[c] '\(searchText!)'")
+            print(predicate)
+        fetchRequest.predicate = predicate
+        }
+        let sortDescriptor = NSSortDescriptor(key: "login", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+      fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "users")
+        
+        fetchedResultsController.delegate = self
+        
+        do {
+            try fetchedResultsController.performFetch()
+            
+        } catch {
+            fatalError("Fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
     
 }
 
 extension SearchViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        currentSearchTask?.cancel()
-        currentSearchTask = APIEndpoints.search(query: searchText) { (users, error) in
+        
+    
+        if !searchText.isEmpty {
+           
+           setupFetchedResultsController(searchText)
             
-            self.users = users
-            self.tableView.reloadData()
+            print("aaa")
+                self.tableView.reloadData()
+            
+            
+        
+            
+            
+        
+        
+        
+        
+//        let gitHubUser = User(context: dataController.viewContext)
+//
+//        currentSearchTask?.cancel()
+//        currentSearchTask = APIEndpoints.search(query: searchText) { (users, error) in
+//
+//            for user in users {
+//                gitHubUser.creationDate = Date()
+//                gitHubUser.avatarUrl = user.avatar
+//                gitHubUser.login = user.login
+//                gitHubUser.reposUrl = user.reposUrl
+//                gitHubUser.score = user.score ?? 0
+//            }
+//
+//            do {
+//                try self.dataController.viewContext.save()
+//                print("saving")
+//            } catch {
+//                print("saving error: \(error.localizedDescription)")
+//            }
+//
+//            try? self.fetchedResultsController.performFetch()
+        
+       
         }
     }
     
@@ -62,21 +118,27 @@ extension SearchViewController: UISearchBarDelegate {
     
 }
 
+//MARK: - tableView data source
 
 extension SearchViewController {
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return fetchedResultsController.sections?.count ?? 1
+    }
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return users.count
+        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! CustomTableViewCell
+        let gitHubUser = fetchedResultsController.object(at: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! UITableViewCell
         
-        let user = users[indexPath.row]
         
-        cell.textLabel?.text = user.login
+        
+        cell.textLabel?.text = gitHubUser.login
         cell.imageView?.image = UIImage(named: "user-default")
         
-        if let avatar = user.avatar {
+        if let avatar = gitHubUser.avatarUrl {
             if let avatarURL = URL(string: avatar) {
                 
                 APIEndpoints.downloadUsersAvatar(avatarURL: avatarURL) { (data, error) in
@@ -93,7 +155,7 @@ extension SearchViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedUser = users[indexPath.row]
+        let selectedUser = fetchedResultsController.object(at: indexPath)
     
         print(tableView.contentSize)
         delegate?.userSelected(selectedUser)
@@ -106,13 +168,21 @@ extension SearchViewController {
     
 }
 
-extension SearchViewController: DataControllerClient {
+//MAKR: Dependency injection for coreData
+
+extension SearchViewController: DataControllerClient, NSFetchedResultsControllerDelegate {
     func setDataController(stack: DataController) {
         self.dataController = stack
     }
+    
+    
+    
+    
 }
 
 extension SearchViewController: UserSelectionDelegate {
-    func userSelected(_ newUser: Users) {
+    func userSelected(_ newUser: User) {
     }
+    
+    
 }

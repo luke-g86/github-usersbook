@@ -15,5 +15,5 @@ protocol DataControllerClient {
 }
 
 protocol UserSelectionDelegate: class {
-    func userSelected(_ newUser: Users)
+    func userSelected(_ newUser: User)
 }
