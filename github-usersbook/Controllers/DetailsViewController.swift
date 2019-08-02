@@ -29,6 +29,8 @@ class DetailsViewController: UIViewController {
 
     }
     
+    
+    
     func presentData() {
         
         loadViewIfNeeded()

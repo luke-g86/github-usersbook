@@ -25,8 +25,8 @@ class SearchViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     
-        self.tableView.rowHeight = 50
-        
+//        self.tableView.rowHeight = 50
+        self.tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "searchCell")
     }
 }
 
@@ -69,7 +69,7 @@ extension SearchViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell")!
+        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! CustomTableViewCell
         
         let user = users[indexPath.row]
         
@@ -95,6 +95,7 @@ extension SearchViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedUser = users[indexPath.row]
     
+        print(tableView.contentSize)
         delegate?.userSelected(selectedUser)
         
         if let detailsViewController = delegate as? DetailsViewController, let detailNavigationController = detailsViewController.navigationController {
