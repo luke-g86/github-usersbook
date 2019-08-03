@@ -34,6 +34,8 @@ class SearchViewController: UITableViewController {
     
     func setupFetchedResultsController(_ searchText: String? = nil) {
 
+            // Deleteing cache which sometimes blocks NSPredicate to work
+        
         NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
         let fetchRequest =  NSFetchRequest<User>(entityName: "User")
         if searchText != nil {
