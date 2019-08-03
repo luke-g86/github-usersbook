@@ -20,7 +20,7 @@ class DetailsViewController: UIViewController {
     
     var fetchedResultsController: NSFetchedResultsController<Details>!
     var dataController: DataController!
-    
+    weak var delegate: SearchViewController?
     
     var selectedUser: User? {
         didSet {
@@ -34,6 +34,9 @@ class DetailsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
+        
+        print(selectedUser)
+        print(delegate)
         
         
     }
