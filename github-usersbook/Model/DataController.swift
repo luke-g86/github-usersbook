@@ -15,12 +15,18 @@ class DataController {
     
     let persistanceContainer: NSPersistentContainer
     
+    
     var viewContext: NSManagedObjectContext {
         return persistanceContainer.viewContext
     }
     
     init (modelName: String) {
         persistanceContainer = NSPersistentContainer(name: modelName)
+    }
+    
+    func configureContexts() {
+        viewContext.automaticallyMergesChangesFromParent = true
+        viewContext.mergePolicy = NSMergePolicy.mergeByPropertyStoreTrump
     }
     
     //completion for background context prepared for future usage
@@ -31,6 +37,7 @@ class DataController {
                 fatalError(error!.localizedDescription)
             }
             self.autoSaveViewContext()
+            self.configureContexts()
             completion?()
         }
     }

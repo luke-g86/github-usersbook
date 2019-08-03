@@ -18,21 +18,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="ucN-08-Jqz">
-                                <rect key="frame" x="36" y="124" width="342" height="326"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="ucN-08-Jqz">
+                                <rect key="frame" x="36" y="124" width="342" height="174"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ecf-nk-bQK">
-                                        <rect key="frame" x="0.0" y="0.0" width="342" height="128"/>
-                                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
-                                    </view>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fTz-HC-oSq">
-                                        <rect key="frame" x="0.0" y="152" width="342" height="100"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fTz-HC-oSq">
+                                        <rect key="frame" x="0.0" y="0.0" width="342" height="100"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="100" id="w4j-xB-MxS"/>
                                         </constraints>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5fQ-5t-iD6">
-                                        <rect key="frame" x="0.0" y="276" width="342" height="50"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5fQ-5t-iD6">
+                                        <rect key="frame" x="0.0" y="124" width="342" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="qJU-5r-pgC"/>
                                         </constraints>
@@ -66,7 +62,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="v5A-CC-Zz7" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2111.594202898551" y="19.419642857142858"/>
+            <point key="canvasLocation" x="2112" y="77"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="nVc-u7-azh">
@@ -92,6 +88,9 @@
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <segue destination="9Cy-6w-FmL" kind="showDetail" identifier="showDetail" id="zH8-DF-nXB"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -157,4 +156,7 @@
             <point key="canvasLocation" x="1201.449275362319" y="19.419642857142858"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="zH8-DF-nXB"/>
+    </inferredMetricsTieBreakers>
 </document>

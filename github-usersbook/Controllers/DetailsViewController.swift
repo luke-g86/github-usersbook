@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import CoreData
+
 
 class DetailsViewController: UIViewController {
     
@@ -16,17 +18,24 @@ class DetailsViewController: UIViewController {
     @IBOutlet weak var userAvatar: UIImageView!
     @IBOutlet weak var userLogin: UILabel!
     
-    var selectedUser: Users? {
+    var fetchedResultsController: NSFetchedResultsController<Details>!
+    var dataController: DataController!
+    
+    
+    var selectedUser: User? {
         didSet {
-            
+            print("detailsViewController")
             presentData()
-            
         }
     }
     
     
-    override func viewWillAppear(_ animated: Bool) {
 
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setupFetchedResultsController()
+        print(selectedUser)
+        
     }
     
     
@@ -34,10 +43,13 @@ class DetailsViewController: UIViewController {
     func presentData() {
         
         loadViewIfNeeded()
+       
         userAvatar.image = UIImage(named: "user-default")
-        guard let avatar = self.selectedUser?.avatar else {return}
+        guard let avatar = self.selectedUser?.avatarUrl else {return}
         userLogin.text = selectedUser?.login
-        downloadAvatar(avatar: avatar)
+        DispatchQueue.main.async {
+            self.downloadAvatar(avatar: avatar)
+        }
         
         stackView.customize()
     }
@@ -59,13 +71,33 @@ class DetailsViewController: UIViewController {
         }
     }
     
+    fileprivate func setupFetchedResultsController() {
+        let fetchRequest:NSFetchRequest<Details> = Details.fetchRequest()
+        guard let selectedUser = selectedUser else {return}
+        let predicate = NSPredicate(format: "user == %@", selectedUser)
+        fetchRequest.predicate = predicate
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(selectedUser)-details")
+        fetchedResultsController.delegate = self
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
+    
     
 }
 
 extension DetailsViewController: UserSelectionDelegate {
-    func userSelected(_ newUser: Users) {
+    func userSelected(_ newUser: User) {
         selectedUser = newUser
     }
-    
+}
+
+extension DetailsViewController: NSFetchedResultsControllerDelegate {
     
 }
