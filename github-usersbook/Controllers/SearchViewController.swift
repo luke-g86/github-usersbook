@@ -24,6 +24,7 @@ class SearchViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupFetchedResultsController()
 
     }
     
@@ -31,10 +32,15 @@ class SearchViewController: UITableViewController {
         setupFetchedResultsController()
     }
     
-    func setupFetchedResultsController() {
-        
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
-        
+    func setupFetchedResultsController(_ searchText: String? = nil) {
+
+        NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
+        let fetchRequest =  NSFetchRequest<User>(entityName: "User")
+        if searchText != nil {
+            let predicate = NSPredicate(format:"login CONTAINS[cd] '\(searchText!)'")
+        fetchRequest.predicate = predicate
+        }
+     
         let sortDescriptor = NSSortDescriptor(key: "login", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "users")
@@ -59,16 +65,13 @@ extension SearchViewController: UISearchBarDelegate {
         
         currentSearchTask?.cancel()
         
-        
         if !searchText.isEmpty {
             
-    
+            setupFetchedResultsController(searchText)
             tableView.reloadData()
-            
-            self.tableView.reloadData()
+
         }
     }
-    
     
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
@@ -138,8 +141,6 @@ extension SearchViewController {
         }
     }
 }
-
-
 
 //MAKR: Dependency injection for coreData
 
