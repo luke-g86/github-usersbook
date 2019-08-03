@@ -37,11 +37,9 @@ class SearchViewController: UITableViewController {
     func setupFetchedResultsController() {
         
         let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
-    
+        
         let sortDescriptor = NSSortDescriptor(key: "login", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
-        
-            print(fetchRequest)
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "users")
         
         fetchedResultsController.delegate = self
@@ -63,140 +61,143 @@ extension SearchViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         currentSearchTask?.cancel()
-
+        
         
         if !searchText.isEmpty {
             
-//            setupFetchedResultsController(searchText)
+            //            setupFetchedResultsController(searchText)
             tableView.reloadData()
-        
+            
             self.tableView.reloadData()
         }
     }
-
-
-
-        func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-            searchBar.showsCancelButton = true
-        }
-        
-        func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-            searchBar.showsCancelButton = false
-        }
-        
-        func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-            searchBar.endEditing(true)
-        }
-        
+    
+    
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = true
     }
     
-    //MARK: - tableView data source
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+    }
     
-    extension SearchViewController {
-        override func numberOfSections(in tableView: UITableView) -> Int {
-            return fetchedResultsController.sections?.count ?? 1
-        }
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.endEditing(true)
+    }
+    
+}
+
+//MARK: - tableView data source
+
+extension SearchViewController {
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return fetchedResultsController.sections?.count ?? 1
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let gitHubUser = fetchedResultsController.object(at: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! UITableViewCell
         
-        override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return fetchedResultsController.sections?[section].numberOfObjects ?? 0
-        }
         
-        override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let gitHubUser = fetchedResultsController.object(at: indexPath)
-            let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! UITableViewCell
-            
-            
-            
-            cell.textLabel?.text = gitHubUser.login
-            cell.imageView?.image = UIImage(named: "user-default")
-            
-            if let avatar = gitHubUser.avatarUrl {
-                if let avatarURL = URL(string: avatar) {
-                    
-                    APIEndpoints.downloadUsersAvatar(avatarURL: avatarURL) { (data, error) in
-                        guard let data = data else {
-                            return
-                        }
-                        let image = UIImage(data: data)
-                        cell.imageView?.image = image
-                        cell.setNeedsLayout()
+        
+        cell.textLabel?.text = gitHubUser.login
+        cell.imageView?.image = UIImage(named: "user-default")
+        
+        if let avatar = gitHubUser.avatarUrl {
+            if let avatarURL = URL(string: avatar) {
+                
+                APIEndpoints.downloadUsersAvatar(avatarURL: avatarURL) { (data, error) in
+                    guard let data = data else {
+                        return
                     }
-                }
-            }
-            return cell
-        }
-        
-        override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            
-            let selectedUser = fetchedResultsController.object(at: indexPath)
-            
-            print(selectedUser)
-            
-            delegate?.userSelected(selectedUser)
-            
-            if let detailsViewController = delegate as? DetailsViewController, let detailNavigationController = detailsViewController.navigationController {
-                splitViewController?.showDetailViewController(detailNavigationController, sender: nil)
-                
-            }
-        }
-        
-        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-            
-            if let vc = segue.destination as? DetailsViewController {
-                if let indexPath = tableView.indexPathForSelectedRow {
-                    vc.selectedUser = fetchedResultsController.object(at: indexPath)
-                    vc.dataController = dataController
+                    let image = UIImage(data: data)
+                    cell.imageView?.image = image
+                    cell.setNeedsLayout()
                 }
             }
         }
-        
+        return cell
     }
     
-    //MAKR: Dependency injection for coreData
-    
-    extension SearchViewController: DataControllerClient, NSFetchedResultsControllerDelegate {
-        func setDataController(stack: DataController) {
-            self.dataController = stack
-        }
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-            
-            switch type {
-            case .insert: tableView.insertRows(at: [newIndexPath!], with: .fade)
-            case .delete: tableView.deleteRows(at: [indexPath!], with: .fade)
-            case .update: tableView.reloadRows(at: [indexPath!], with: .fade)
-            case .move: tableView.moveRow(at: indexPath!, to: newIndexPath!)
-            
-            default: fatalError("invalid change type in controller didChange")
-            }
-        }
+        let selectedUser = fetchedResultsController.object(at: indexPath)
         
-        func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-            let indexSet = IndexSet(integer: sectionIndex)
-            
-            switch type {
-            case .insert: tableView.insertSections(indexSet, with: .fade)
-            case .delete: tableView.deleteSections(indexSet, with: .fade)
-            case .update, .move:
-                fatalError("Invalid change type in controller didChange at section")
-                
-            }
-        }
+
         
-        func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-            tableView.beginUpdates()
-        }
+//        delegate?.userSelected(selectedUser)
+//
+//        if let detailsViewController = delegate as? DetailsViewController, let detailNavigationController = detailsViewController.navigationController {
+//            splitViewController?.showDetailViewController(detailNavigationController, sender: nil)
         
-        func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-            tableView.endUpdates()
-        }
-        
-        
+//        }
     }
     
-    extension SearchViewController: UserSelectionDelegate {
-        func userSelected(_ newUser: User) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showDetail" {
+            guard let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController else {
+                print("pushing to the next VC error")
+                return }
+            if let indexPath = tableView.indexPathForSelectedRow {
+                vc.selectedUser = fetchedResultsController.object(at: indexPath)
+                vc.dataController = dataController
+            }
         }
+    }
+}
+
+
+
+//MAKR: Dependency injection for coreData
+
+extension SearchViewController: DataControllerClient, NSFetchedResultsControllerDelegate {
+    func setDataController(stack: DataController) {
+        self.dataController = stack
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
+        switch type {
+        case .insert: tableView.insertRows(at: [newIndexPath!], with: .fade)
+        case .delete: tableView.deleteRows(at: [indexPath!], with: .fade)
+        case .update: tableView.reloadRows(at: [indexPath!], with: .fade)
+        case .move: tableView.moveRow(at: indexPath!, to: newIndexPath!)
+            
+        default: fatalError("invalid change type in controller didChange")
+        }
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        let indexSet = IndexSet(integer: sectionIndex)
         
+        switch type {
+        case .insert: tableView.insertSections(indexSet, with: .fade)
+        case .delete: tableView.deleteSections(indexSet, with: .fade)
+        case .update, .move:
+            fatalError("Invalid change type in controller didChange at section")
+            
+        }
+    }
+    
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.beginUpdates()
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.endUpdates()
+    }
+    
+    
+}
+
+extension SearchViewController: UserSelectionDelegate {
+    func userSelected(_ newUser: User) {
+    }
+    
+    
 }

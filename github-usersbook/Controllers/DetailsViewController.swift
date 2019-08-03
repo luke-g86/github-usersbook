@@ -34,6 +34,8 @@ class DetailsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
+        print(selectedUser)
+        
     }
     
     
