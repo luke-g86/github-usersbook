@@ -24,6 +24,7 @@ class SearchViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupFetchedResultsController()
 
     }
     
@@ -31,10 +32,15 @@ class SearchViewController: UITableViewController {
         setupFetchedResultsController()
     }
     
-    func setupFetchedResultsController() {
-        
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
-        
+    func setupFetchedResultsController(_ searchText: String? = nil) {
+
+        NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
+        let fetchRequest =  NSFetchRequest<User>(entityName: "User")
+        if searchText != nil {
+            let predicate = NSPredicate(format:"login CONTAINS[cd] '\(searchText!)'")
+        fetchRequest.predicate = predicate
+        }
+     
         let sortDescriptor = NSSortDescriptor(key: "login", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "users")
@@ -59,16 +65,13 @@ extension SearchViewController: UISearchBarDelegate {
         
         currentSearchTask?.cancel()
         
-        
         if !searchText.isEmpty {
             
-    
+            setupFetchedResultsController(searchText)
             tableView.reloadData()
-            
-            self.tableView.reloadData()
+
         }
     }
-    
     
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
@@ -123,48 +126,21 @@ extension SearchViewController {
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        let selectedUser = fetchedResultsController.object(at: indexPath)
-        
-
-        
-        let detailsViewController = DetailsViewController() as? UINavigationController
-        let detailNavigationController = detailsViewController?.navigationController?.topViewController
-        guard let vc = detailNavigationController else {return}
-        splitViewController?.showDetailViewController(vc, sender: nil)
-      
-        
-        
-  
-//        if let detailsViewController = delegate as? DetailsViewController, let detailNavigationController = detailsViewController.navigationController?.topViewController {
-//            splitViewController?.showDetailViewController(detailNavigationController, sender: nil)
-        
-//               delegate?.userSelected(selectedUser)
-//            detailsViewController.dataController = dataController
-//            detailsViewController.selectedUser = selectedUser
-//
-//
-//        }
-    }
     
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        if segue.identifier == "showDetail" {
-//            guard let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController else {
-//                print("pushing to the next VC error")
-//                return }
-//            if let indexPath = tableView.indexPathForSelectedRow {
-//
-//                vc.delegate = self
-//                vc.userSelected(fetchedResultsController.object(at: indexPath))
-////                vc.selectedUser = fetchedResultsController.object(at: indexPath)
-//                vc.dataController = dataController
-//            }
-//        }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showDetail" {
+            guard let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController else {
+                print("pushing to the next VC error")
+                return }
+            if let indexPath = tableView.indexPathForSelectedRow {
+
+                vc.delegate = self
+                vc.userSelected(fetchedResultsController.object(at: indexPath))
+                vc.dataController = dataController
+            }
+        }
     }
 }
-
-
 
 //MAKR: Dependency injection for coreData
 
