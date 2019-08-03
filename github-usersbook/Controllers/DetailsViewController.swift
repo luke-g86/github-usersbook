@@ -24,7 +24,7 @@ class DetailsViewController: UIViewController {
     
     var selectedUser: User? {
         didSet {
-            
+            print("detailsViewController")
             presentData()
         }
     }
@@ -45,7 +45,9 @@ class DetailsViewController: UIViewController {
         userAvatar.image = UIImage(named: "user-default")
         guard let avatar = self.selectedUser?.avatarUrl else {return}
         userLogin.text = selectedUser?.login
-        downloadAvatar(avatar: avatar)
+        DispatchQueue.main.async {
+            self.downloadAvatar(avatar: avatar)
+        }
         
         stackView.customize()
     }

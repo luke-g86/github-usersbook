@@ -69,74 +69,12 @@ extension SearchViewController: UISearchBarDelegate {
             
 //            setupFetchedResultsController(searchText)
             tableView.reloadData()
-            
-            print(fetchedResultsController.fetchedObjects?.count)
-            
-            
-            
-//            guard let fetchedData = fetchedResultsController.fetchedObjects else { return }
-//            let gitHubUser = User(context: dataController.viewContext)
-//
-//            let result = fetchedData.filter{$0.login?.replacingOccurrences(of: " ", with: "").lowercased() == searchText.replacingOccurrences(of: " ", with: "").lowercased()}
-//            print("results: \(result)")
-//
-//
-//
-//            if result.isEmpty {
-//
-//                currentSearchTask = APIEndpoints.search(query: searchText) { (users, error) in
-//
-//                    for user in users {
-//                        gitHubUser.creationDate = Date()
-//                        gitHubUser.avatarUrl = user.avatar
-//                        gitHubUser.login = user.login
-//                        gitHubUser.reposUrl = user.reposUrl
-//                        gitHubUser.score = user.score ?? 0
-//                    }
-//
-//                    do {
-//                        try self.dataController.viewContext.save()
-//                        print("saving")
-//                    } catch {
-//                        print("saving error: \(error.localizedDescription)")
-//                    }
-//
-//                    try? self.fetchedResultsController.performFetch()
-//                }
-//                print("number of objects: \(fetchedResultsController.fetchedObjects?.count)")
-//
-//                self.tableView.reloadData()
-//
-//            }
+        
             self.tableView.reloadData()
         }
     }
 
 
-                
-                //        let gitHubUser = User(context: dataController.viewContext)
-                //
-                //        currentSearchTask?.cancel()
-                //        currentSearchTask = APIEndpoints.search(query: searchText) { (users, error) in
-                //
-                //            for user in users {
-                //                gitHubUser.creationDate = Date()
-                //                gitHubUser.avatarUrl = user.avatar
-                //                gitHubUser.login = user.login
-                //                gitHubUser.reposUrl = user.reposUrl
-                //                gitHubUser.score = user.score ?? 0
-                //            }
-                //
-                //            do {
-                //                try self.dataController.viewContext.save()
-                //                print("saving")
-                //            } catch {
-                //                print("saving error: \(error.localizedDescription)")
-                //            }
-                //
-                //            try? self.fetchedResultsController.performFetch()
-                
-                
 
         func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
             searchBar.showsCancelButton = true
@@ -189,14 +127,26 @@ extension SearchViewController: UISearchBarDelegate {
         }
         
         override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            
             let selectedUser = fetchedResultsController.object(at: indexPath)
             
+            print(selectedUser)
             
             delegate?.userSelected(selectedUser)
             
             if let detailsViewController = delegate as? DetailsViewController, let detailNavigationController = detailsViewController.navigationController {
                 splitViewController?.showDetailViewController(detailNavigationController, sender: nil)
                 
+            }
+        }
+        
+        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+            
+            if let vc = segue.destination as? DetailsViewController {
+                if let indexPath = tableView.indexPathForSelectedRow {
+                    vc.selectedUser = fetchedResultsController.object(at: indexPath)
+                    vc.dataController = dataController
+                }
             }
         }
         
