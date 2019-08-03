@@ -34,12 +34,10 @@ class SearchViewController: UITableViewController {
         setupFetchedResultsController()
     }
     
-    func setupFetchedResultsController(_ searchText: String? = nil) {
+    func setupFetchedResultsController() {
+        
         let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
-        if searchText != nil {
-            let predicate = NSPredicate(format: "login contains[] '\(searchText!)'")
-            fetchRequest.predicate = predicate
-        }
+    
         let sortDescriptor = NSSortDescriptor(key: "login", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
         
@@ -69,10 +67,12 @@ extension SearchViewController: UISearchBarDelegate {
         
         if !searchText.isEmpty {
             
-            setupFetchedResultsController(searchText)
+//            setupFetchedResultsController(searchText)
             tableView.reloadData()
             
             print(fetchedResultsController.fetchedObjects?.count)
+            
+            
             
 //            guard let fetchedData = fetchedResultsController.fetchedObjects else { return }
 //            let gitHubUser = User(context: dataController.viewContext)
@@ -191,7 +191,7 @@ extension SearchViewController: UISearchBarDelegate {
         override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             let selectedUser = fetchedResultsController.object(at: indexPath)
             
-            print(tableView.contentSize)
+            
             delegate?.userSelected(selectedUser)
             
             if let detailsViewController = delegate as? DetailsViewController, let detailNavigationController = detailsViewController.navigationController {
@@ -231,6 +231,14 @@ extension SearchViewController: UISearchBarDelegate {
                 fatalError("Invalid change type in controller didChange at section")
                 
             }
+        }
+        
+        func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+            tableView.beginUpdates()
+        }
+        
+        func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+            tableView.endUpdates()
         }
         
         
