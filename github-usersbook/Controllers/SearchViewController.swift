@@ -24,16 +24,7 @@ class SearchViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-<<<<<<< HEAD
-    
-//        self.tableView.rowHeight = 50
-//        self.tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "searchCell")
-=======
-        
-        //        self.tableView.rowHeight = 50
-        //        self.tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "searchCell")
-        setupFetchedResultsController()
->>>>>>> coreData
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -71,7 +62,7 @@ extension SearchViewController: UISearchBarDelegate {
         
         if !searchText.isEmpty {
             
-            //            setupFetchedResultsController(searchText)
+    
             tableView.reloadData()
             
             self.tableView.reloadData()
@@ -106,10 +97,9 @@ extension SearchViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-<<<<<<< HEAD
-=======
+
         let gitHubUser = fetchedResultsController.object(at: indexPath)
->>>>>>> coreData
+
         let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! UITableViewCell
         
         
