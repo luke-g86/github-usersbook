@@ -24,7 +24,7 @@ class DetailsViewController: UIViewController {
     
     var selectedUser: User? {
         didSet {
-            print("detailsViewController")
+            
             presentData()
         }
     }
@@ -34,9 +34,7 @@ class DetailsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
-        
-        print(selectedUser)
-        print(delegate)
+ 
         
         
     }
