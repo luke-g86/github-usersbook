@@ -15,8 +15,6 @@ class SearchViewController: UITableViewController {
     @IBOutlet weak var searchBar: UISearchBar!
     
     var dataController: DataController!
-    var users = [Users]()
-    var currentSearchTask: URLSessionTask?
     var fetchedResultsController: NSFetchedResultsController<User>!
     
     weak var delegate: UserSelectionDelegate?
@@ -31,6 +29,7 @@ class SearchViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
+        tableView.reloadData()
     }
     
     func setupFetchedResultsController(_ searchText: String? = nil) {
@@ -85,18 +84,15 @@ extension SearchViewController: UISearchBarDelegate {
     
     func setupSearchBar() {
         searchBar.placeholder = "Type at least 3 characters to search"
+        searchBar.delegate = self
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
-        currentSearchTask?.cancel()
-        
         if searchText.count > 2 {
             setupFetchedResultsController(searchText)
             tableView.reloadData()
-            print("do it")
-            print(fetchedResultsController.fetchedObjects?.count)
-            print(fetchedResultsController.fetchedObjects?.count == 0)
+            
             if fetchedResultsController.fetchedObjects?.count == 0 {
                 let gitHubUser = User(context: dataController.viewContext)
                 
@@ -112,12 +108,11 @@ extension SearchViewController: UISearchBarDelegate {
                     try? self.dataController.viewContext.save()
                     self.tableView.reloadData()
                 }
-                
-                tableView.reloadData()
-                
             }
         }
     }
+    
+    
     
     func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
         tableView.reloadData()
@@ -130,12 +125,16 @@ extension SearchViewController: UISearchBarDelegate {
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         searchBar.showsCancelButton = false
+        setupFetchedResultsController()
         tableView.reloadData()
+        print("ended editing")
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.endEditing(true)
+        
         tableView.reloadData()
+        print("cancel")
     }
     
 }
@@ -182,7 +181,6 @@ extension SearchViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             guard let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController else {
-                print("pushing to the next VC error")
                 return }
             if let indexPath = tableView.indexPathForSelectedRow {
                 
@@ -209,7 +207,7 @@ extension SearchViewController: DataControllerClient, NSFetchedResultsController
         case .update: tableView.reloadRows(at: [indexPath!], with: .fade)
         case .move: tableView.moveRow(at: indexPath!, to: newIndexPath!)
             
-        default: fatalError("invalid change type in controller didChange")
+        @unknown default: fatalError("invalid change type in controller didChange")
         }
     }
     
@@ -222,6 +220,8 @@ extension SearchViewController: DataControllerClient, NSFetchedResultsController
         case .update, .move:
             fatalError("Invalid change type in controller didChange at section")
             
+        @unknown default:
+            fatalError("unknown coreData controller error")
         }
     }
     
