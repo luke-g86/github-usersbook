@@ -25,7 +25,8 @@ class SearchViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupFetchedResultsController()
-
+        setupSearchBar()
+        cleaningDataBase()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -33,21 +34,22 @@ class SearchViewController: UITableViewController {
     }
     
     func setupFetchedResultsController(_ searchText: String? = nil) {
-
-            // Deleteing cache which sometimes blocks NSPredicate to work
+        
+        // Deleteing cache which sometimes blocks NSPredicate to work
         
         NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
         let fetchRequest =  NSFetchRequest<User>(entityName: "User")
         if searchText != nil {
             let predicate = NSPredicate(format:"login CONTAINS[cd] '\(searchText!)'")
-        fetchRequest.predicate = predicate
+            fetchRequest.predicate = predicate
         }
-     
+        
         let sortDescriptor = NSSortDescriptor(key: "login", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "users")
         
         fetchedResultsController.delegate = self
+        
         
         do {
             try fetchedResultsController.performFetch()
@@ -57,23 +59,61 @@ class SearchViewController: UITableViewController {
         }
     }
     
+    func cleaningDataBase() {
+        
+        // delete all entries older then 7 days which do not have saved details
+        
+        var expirationDate: Date {
+            let currentDate = Date()
+            return Calendar.current.date(byAdding: .day, value: -7, to: currentDate)!
+        }
+        
+        guard let data = fetchedResultsController.fetchedObjects else { return }
+        for object in data {
+            if (object.details?.count == 0) && (object.creationDate! < expirationDate) {
+                dataController.viewContext.delete(object)
+            }
+        }
+    }
+    
 }
 
 //MARK: - Search
 
 extension SearchViewController: UISearchBarDelegate {
     
+    func setupSearchBar() {
+        searchBar.placeholder = "Type at least 3 characters to search"
+    }
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         currentSearchTask?.cancel()
         
-        if !searchText.isEmpty {
+        if searchText.count > 2 {
             
             setupFetchedResultsController(searchText)
-            tableView.reloadData()
-
+            
+            if fetchedResultsController.fetchedObjects?.count == 0 {
+                let gitHubUser = User(context: dataController.viewContext)
+                
+                
+                _ = APIEndpoints.search(query: searchText) { (data, error) in
+                    for user in data {
+                        gitHubUser.avatarUrl = user.avatar
+                        gitHubUser.login = user.login
+                        gitHubUser.score = user.score ?? 0
+                        gitHubUser.reposUrl = user.reposUrl
+                    }
+                    try? self.dataController.viewContext.save()
+                }
+                
+                tableView.reloadData()
+                
+            }
         }
     }
+    
     
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
@@ -102,9 +142,9 @@ extension SearchViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
+        
         let gitHubUser = fetchedResultsController.object(at: indexPath)
-
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! UITableViewCell
         
         
@@ -135,7 +175,7 @@ extension SearchViewController {
                 print("pushing to the next VC error")
                 return }
             if let indexPath = tableView.indexPathForSelectedRow {
-
+                
                 vc.delegate = self
                 vc.userSelected(fetchedResultsController.object(at: indexPath))
                 vc.dataController = dataController
@@ -188,6 +228,6 @@ extension SearchViewController: DataControllerClient, NSFetchedResultsController
 
 extension SearchViewController: UserSelectionDelegate {
     func userSelected(_ newUser: User) {
-        }
+    }
     
 }

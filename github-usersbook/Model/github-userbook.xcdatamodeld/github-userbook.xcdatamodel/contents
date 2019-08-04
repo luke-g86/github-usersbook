@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14492.1" systemVersion="18F2058" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14492.1" systemVersion="18G84" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Details" representedClassName="Details" syncable="YES" codeGenerationType="class">
         <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="isWatched" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="lastChecked" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="details" inverseEntity="User" syncable="YES"/>
     </entity>
     <entity name="User" representedClassName="User" syncable="YES" codeGenerationType="class">
@@ -14,7 +16,7 @@
         <relationship name="details" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Details" inverseName="user" inverseEntity="Details" syncable="YES"/>
     </entity>
     <elements>
+        <element name="Details" positionX="-243" positionY="72" width="128" height="105"/>
         <element name="User" positionX="-260.80078125" positionY="4.66796875" width="128" height="148"/>
-        <element name="Details" positionX="-243" positionY="72" width="128" height="75"/>
     </elements>
 </model>
