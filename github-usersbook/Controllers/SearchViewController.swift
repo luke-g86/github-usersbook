@@ -61,16 +61,17 @@ class SearchViewController: UITableViewController {
     
     func cleaningDataBase() {
         
-        // delete all entries older then 7 days which do not have saved details
+        // delete all entries older then 8 days which do not have saved details
         
         var expirationDate: Date {
             let currentDate = Date()
-            return Calendar.current.date(byAdding: .day, value: -7, to: currentDate)!
+            return Calendar.current.date(byAdding: .day, value: -8, to: currentDate)!
         }
         
         guard let data = fetchedResultsController.fetchedObjects else { return }
         for object in data {
-            if (object.details?.count == 0) && (object.creationDate! < expirationDate) {
+            // deletion if object has no details, creation date or it is older than full 7 days
+            if (object.details?.count == 0) && (object.creationDate ?? expirationDate <= expirationDate) {
                 dataController.viewContext.delete(object)
             }
         }
@@ -91,9 +92,11 @@ extension SearchViewController: UISearchBarDelegate {
         currentSearchTask?.cancel()
         
         if searchText.count > 2 {
-            
             setupFetchedResultsController(searchText)
-            
+            tableView.reloadData()
+            print("do it")
+            print(fetchedResultsController.fetchedObjects?.count)
+            print(fetchedResultsController.fetchedObjects?.count == 0)
             if fetchedResultsController.fetchedObjects?.count == 0 {
                 let gitHubUser = User(context: dataController.viewContext)
                 
@@ -101,11 +104,13 @@ extension SearchViewController: UISearchBarDelegate {
                 _ = APIEndpoints.search(query: searchText) { (data, error) in
                     for user in data {
                         gitHubUser.avatarUrl = user.avatar
+                        gitHubUser.creationDate = Date()
                         gitHubUser.login = user.login
                         gitHubUser.score = user.score ?? 0
                         gitHubUser.reposUrl = user.reposUrl
                     }
                     try? self.dataController.viewContext.save()
+                    self.tableView.reloadData()
                 }
                 
                 tableView.reloadData()
@@ -114,7 +119,10 @@ extension SearchViewController: UISearchBarDelegate {
         }
     }
     
-    
+    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
+        tableView.reloadData()
+        return true
+    }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchBar.showsCancelButton = true
@@ -122,10 +130,12 @@ extension SearchViewController: UISearchBarDelegate {
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         searchBar.showsCancelButton = false
+        tableView.reloadData()
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.endEditing(true)
+        tableView.reloadData()
     }
     
 }
