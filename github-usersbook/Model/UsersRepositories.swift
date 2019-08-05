@@ -8,6 +8,20 @@
 
 import Foundation
 
+
+struct ReposSearch: Codable {
+    
+    let totalCount: Int
+    let incompleteResults: Bool
+    let items: [UsersRepositories]
+    
+    enum CodingKeys: String, CodingKey {
+        case totalCount = "total_count"
+        case incompleteResults = "incomplete_results"
+        case items
+    }
+}
+
 struct UsersRepositories: Codable {
     
     let id: Int?
