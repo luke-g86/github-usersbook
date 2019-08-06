@@ -17,7 +17,7 @@ public class ViewsFactory {
         view.backgroundColor = backgroundColor
         view.layer.masksToBounds = false
         view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.2
+        view.layer.shadowOpacity = 0.1
         view.layer.shadowOffset = CGSize(width: 8, height: 8)
         view.layer.shadowRadius = 15
         view.layer.borderColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
