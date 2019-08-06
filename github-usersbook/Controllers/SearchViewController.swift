@@ -16,7 +16,7 @@ class SearchViewController: UITableViewController {
     
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<User>!
-    
+
     weak var delegate: UserSelectionDelegate?
     
     
@@ -24,13 +24,31 @@ class SearchViewController: UITableViewController {
         super.viewDidLoad()
         setupFetchedResultsController()
         setupSearchBar()
+        setTableView()
         cleaningDataBase()
+        
+        navigationItem.title = "GitHub users finder"
+   
+   
     }
+
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
         tableView.reloadData()
     }
+    
+    
+    func setTableView() {
+        tableView.frame = self.view.frame
+        
+        tableView.separatorColor = UIColor.clear
+        tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "searchCell")
+        tableView.allowsSelection = true
+        tableView.refreshControl = refreshControl
+    }
+    
+
     
     func setupFetchedResultsController(_ searchText: String? = nil) {
         
@@ -154,12 +172,11 @@ extension SearchViewController {
         
         let gitHubUser = fetchedResultsController.object(at: indexPath)
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! UITableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! CustomTableViewCell
         
-        
-        
-        cell.textLabel?.text = gitHubUser.login
-        cell.imageView?.image = UIImage(named: "user-default")
+        cell.userNickname.text = gitHubUser.login
+        cell.userAvatar.image = UIImage(named: "user-default")
+  
         
         if let avatar = gitHubUser.avatarUrl {
             if let avatarURL = URL(string: avatar) {
@@ -169,12 +186,16 @@ extension SearchViewController {
                         return
                     }
                     let image = UIImage(data: data)
-                    cell.imageView?.image = image
+                    cell.userAvatar.image = image
                     cell.setNeedsLayout()
                 }
             }
         }
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "showDetail", sender: nil)
     }
     
     
@@ -190,6 +211,7 @@ extension SearchViewController {
             }
         }
     }
+
 }
 
 //MAKR: Dependency injection for coreData
@@ -240,4 +262,35 @@ extension SearchViewController: UserSelectionDelegate {
     func userSelected(_ newUser: User) {
     }
     
+}
+
+extension SearchViewController {
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
+    }
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        UIView.animate(withDuration: 0.4) {
+            cell.transform = CGAffineTransform.identity
+        }
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        let animationHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
+            // This block will be called several times during rotation,
+            // so the tableView change more smoothly
+            self?.tableView.reloadData()
+            self?.tableView.frame = self!.view.frame
+        }
+        
+        let completionHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
+            // This block will be called when rotation will be completed
+            self?.tableView.reloadData()
+        }
+        coordinator.animate(alongsideTransition: animationHandler, completion: completionHandler)
+    }
 }

@@ -13,18 +13,20 @@ class CustomTableViewCell: UITableViewCell {
     
     lazy var cellView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = #colorLiteral(red: 0.7882352941, green: 0.7882352941, blue: 0.8078431373, alpha: 1)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.clipsToBounds = true
+        view.isUserInteractionEnabled = false
+        
         return view
     }()
     
     lazy var userAvatar: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        imageView.layer.cornerRadius = 20
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.clipsToBounds = true
+    
         return imageView
     }()
     
@@ -34,14 +36,15 @@ class CustomTableViewCell: UITableViewCell {
         label.font = UIFont.boldSystemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.clipsToBounds = true
+        
         return label
     }()
     
-    
     override func layoutSubviews() {
         contentView.backgroundColor = UIColor.clear
+        backgroundColor = UIColor.clear
         cellView.layer.cornerRadius = 5
-        userAvatar.layer.cornerRadius = 0
+        userAvatar.layer.cornerRadius = 10
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -64,18 +67,16 @@ class CustomTableViewCell: UITableViewCell {
     func addLayoutContraints() {
         cellView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 5).isActive = true
         cellView.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
-//        cellView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 5).isActive = true
-        cellView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        cellView.widthAnchor.constraint(equalToConstant: 100).isActive = true
-//        cellView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: 5).isActive = true
-        
+        cellView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 32).isActive = true
+        cellView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -32).isActive = true
+
         userAvatar.centerYAnchor.constraint(equalTo: self.cellView.centerYAnchor).isActive = true
-        userAvatar.leadingAnchor.constraint(equalTo: self.cellView.leadingAnchor, constant: 10).isActive = true
-        userAvatar.widthAnchor.constraint(equalToConstant: 25).isActive = true
-        userAvatar.heightAnchor.constraint(equalToConstant: 25).isActive = true
-        
-        userNickname.topAnchor.constraint(equalTo: self.userAvatar.topAnchor, constant: 2).isActive = true
-        userNickname.leadingAnchor.constraint(equalTo: self.userNickname.trailingAnchor, constant: 2).isActive = true
-        userNickname.trailingAnchor.constraint(equalTo: self.cellView.trailingAnchor, constant: 0).isActive = true
+        userAvatar.leadingAnchor.constraint(equalTo: self.cellView.leadingAnchor, constant: 5).isActive = true
+        userAvatar.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        userAvatar.heightAnchor.constraint(equalToConstant: 50).isActive = true
+
+        userNickname.centerYAnchor.constraint(equalTo: self.userAvatar.centerYAnchor, constant: 0).isActive = true
+        userNickname.leadingAnchor.constraint(equalTo: self.userAvatar.trailingAnchor, constant: 20).isActive = true
+        userNickname.trailingAnchor.constraint(equalTo: self.cellView.trailingAnchor, constant: -20).isActive = true
     }
 }

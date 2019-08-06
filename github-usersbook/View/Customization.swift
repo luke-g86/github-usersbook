@@ -9,8 +9,15 @@
 import Foundation
 import UIKit
 
-class Customization: UIImageView {
+final class GradientView: UIView {
+    override class var layerClass: AnyClass { return CAGradientLayer.self }
     
-// Make custom UIViews
+    var colors: (start: UIColor, end: UIColor)? {
+        didSet { updateLayer() }
+    }
     
+    private func updateLayer() {
+        let layer = self.layer as! CAGradientLayer
+        layer.colors = colors.map { [$0.start.cgColor, $0.end.cgColor] }
+    }
 }
