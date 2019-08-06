@@ -113,7 +113,17 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
                     return
                 }
                 self.repos = data
-                print(self.repos)
+                let repositories = Details(context: self.dataController.viewContext)
+                for item in data {
+                    repositories.creationDate = Date()
+                    repositories.repoCreationDate = item.createdAt
+                    repositories.language = item.language
+                    repositories.name = item.name
+                    repositories.repoDescription = item.description
+                    repositories.stargazersCount =
+                    repositories.watchersCount = item.watchersCount
+                    
+                }
             }
         }
     }

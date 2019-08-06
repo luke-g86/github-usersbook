@@ -28,6 +28,7 @@ struct UsersRepositories: Codable {
     
     let name: String?
 //    let owner: Owner?
+    let description: String?
     let createdAt: String?
 //    let updatedAt: String?
     let stargazersCount: Int?
@@ -39,6 +40,7 @@ struct UsersRepositories: Codable {
         
         case name
 //        case owner
+        case description
         case createdAt = "created_at"
 //        case updatedAt = "updated_at"
         case stargazersCount = "stargazers_count"
