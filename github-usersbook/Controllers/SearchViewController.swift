@@ -28,8 +28,7 @@ class SearchViewController: UITableViewController {
         cleaningDataBase()
         
         navigationItem.title = "GitHub users finder"
-   
-   
+
     }
 
     

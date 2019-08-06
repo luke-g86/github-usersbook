@@ -127,11 +127,6 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         
     
         let generalContainer = ViewsFactory.view(forBackground: UIColor.white, forAutoresizingMaskIntoConstraints: false)
-//        generalContainer.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        
-       
-        
-        
 
         scrollView.addSubview(generalContainer)
         
@@ -171,14 +166,6 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         generalContainer.addSubview(nicknameLabel)
         generalContainer.addSubview(userCardContainerView)
         generalContainer.addSubview(scoreLabel)
-//        view.addSubview(userAvatar)
-//        view.addSubview(nicknameLabel)
-//        view.addSubview(userCardContainerView)
-//        view.addSubview(scoreLabel)
-//        scrollView.addSubview(userAvatar)
-//        scrollView.addSubview(nicknameLabel)
-//        scrollView.addSubview(userCardContainerView)
-//        scrollView.addSubview(scoreLabel)
         
         generalContainer.bringSubviewToFront(userAvatar)
         generalContainer.bringSubviewToFront(nicknameLabel)
