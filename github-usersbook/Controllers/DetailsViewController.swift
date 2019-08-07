@@ -64,7 +64,13 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
             print("No user data")
             return
         }
-        userAvatar.image = UIImage(data: selectedUser.avatar!)
+        guard let image = selectedUser.avatar else {
+            
+
+            
+            return
+        }
+        userAvatar.image = UIImage(data: selectedUser.avatar)
         nicknameLabel.text = "🤓 \(selectedUser.login!)"
         scoreLabel.text = "Scoring ✅: \(String(format: "%.1f", selectedUser.score))"
        
@@ -73,6 +79,8 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         
         
     }
+    
+    
     
     
     override func viewDidLayoutSubviews() {
