@@ -31,6 +31,7 @@ class SearchViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
+        cleaningDataBase()
         tableView.reloadData()
     }
     
@@ -43,7 +44,6 @@ class SearchViewController: UITableViewController {
         tableView.allowsSelection = true
         tableView.refreshControl = refreshControl
     }
-    
     
     
     func setupFetchedResultsController(_ searchText: String? = nil) {
@@ -104,7 +104,7 @@ extension SearchViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         // Performing delay between searches. If uers is typing previous request is being terminated.
-        
+
         NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload(_:)), object: searchBar)
         perform(#selector(self.reload(_:)), with: searchBar, afterDelay: 0.75)
     }
@@ -116,7 +116,7 @@ extension SearchViewController: UISearchBarDelegate {
         guard let searchQuery = searchBar.text, searchQuery.trimmingCharacters(in: .whitespaces) != "" else {return}
         
         if searchQuery.count > 2 {
-            
+        
             setupFetchedResultsController(searchQuery)
             tableView.reloadData()
             
@@ -125,14 +125,17 @@ extension SearchViewController: UISearchBarDelegate {
                 
                 
                 _ = APIEndpoints.search(query: searchQuery) { (data, error) in
-                    for user in data {
-                        gitHubUser.avatarUrl = user.avatar
-                        gitHubUser.creationDate = Date()
-                        gitHubUser.login = user.login
-                        gitHubUser.score = user.score ?? 0
-                        gitHubUser.reposUrl = user.reposUrl
-                    }
                     
+                    DispatchQueue.main.async {
+                        for user in data {
+                            gitHubUser.avatarUrl = user.avatar
+                            gitHubUser.creationDate = Date()
+                            gitHubUser.login = user.login
+                            gitHubUser.score = user.score ?? 0
+                            gitHubUser.reposUrl = user.reposUrl
+
+                        }
+
                     guard let avatarURL = gitHubUser.avatarUrl else {return}
                     if let url = URL(string: avatarURL) {
                         
@@ -144,6 +147,7 @@ extension SearchViewController: UISearchBarDelegate {
                             }
                             gitHubUser.avatar = data
                         }
+                    }
                         
                         try? self.dataController.viewContext.save()
                         self.tableView.reloadData()

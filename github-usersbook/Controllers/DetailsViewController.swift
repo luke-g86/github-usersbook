@@ -16,14 +16,15 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
     var fetchedResultsController: NSFetchedResultsController<Details>!
     var dataController: DataController!
-    
+    let dispatchGroup = DispatchGroup()
+    let dispatchQueue = DispatchQueue(label: "github-users-repos")
     var repos: [UsersRepositories] = []
-    
     var selectedUser: User? {
         didSet {
             presentData()
         }
     }
+    
     
     //MARK: UI View objects
     
@@ -56,12 +57,15 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         loadViewIfNeeded()
         self.navigationItem.title = "User details"
         
-        createUserCard()
-        createReposCard()
-        
         // setting avatar placeholder
-        
         userAvatar.image = UIImage(named: "user-default")
+        
+        // setting UI for the details view
+        settingUI()
+    }
+    
+    func settingUI() {
+        
         guard let selectedUser = selectedUser else {
             print("No user data")
             return
@@ -69,21 +73,83 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         
         // setting users avatar if its already downloaded. If not, there's an attempt to download it.
         
-        guard let image = selectedUser.avatar else {
+        if let image = selectedUser.avatar {
+            userAvatar.image = UIImage(data: image)
+        } else {
             guard let avatarUrl = selectedUser.avatarUrl else {return}
             downloadAvatar(avatar: avatarUrl)
-            return
         }
-        userAvatar.image = UIImage(data: image)
+        
         nicknameLabel.text = "🤓 \(selectedUser.login!)"
         scoreLabel.text = "Scoring ✅: \(String(format: "%.1f", selectedUser.score))"
         
+        // Getting user's repositories
         getRepoDetails(username: selectedUser.login!)
         
+        // Creating his login and scoring card
+        createUserCard()
         
-        
+        // Creating details view (queue dispatched, waiting for the getRepoDetails to finish network request)
+        dispatchGroup.notify(queue: dispatchQueue) {
+            DispatchQueue.main.async {
+                self.createReposCard()
+            }
+        }
     }
     
+    
+    
+    override func viewDidLayoutSubviews() {
+        scrollView.delegate = self
+        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+    }
+    
+    // MARK: - Networking
+    
+    //MARK: Repo details download
+    
+    func getRepoDetails(username: String) {
+        
+        self.dispatchGroup.enter()
+        
+        let repositories = Details(context: self.dataController.viewContext)
+        
+        _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
+            
+            guard let data = data else {
+                print(error?.localizedDescription ?? "unknown error")
+                return
+            }
+            self.repos = data
+            
+            for item in data {
+                repositories.creationDate = Date()
+                repositories.repoCreationDate = item.createdAt
+                repositories.language = item.language
+                repositories.name = item.name
+                repositories.repoDescription = item.description
+                repositories.stargazersCount = Int32("\(String(describing: item.watchersCount))") ?? 0
+                repositories.watchersCount = Int32("\(String(describing: item.watchersCount))") ?? 0
+                repositories.user = self.selectedUser!
+            }
+            print("leaving")
+            do {
+                try self.dataController.viewContext.save()
+            } catch {
+                print("saving error: \(error.localizedDescription)")
+            }
+            do {
+                try self.fetchedResultsController.performFetch()
+                
+            } catch {
+                print("fetching error: \(error.localizedDescription)")
+            }
+            self.dispatchGroup.leave()
+        }
+    }
+    
+    
+    // MARK: Avatar download
     
     func downloadAvatar(avatar: String) {
         if let avatarURL = URL(string: avatar) {
@@ -105,49 +171,18 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    override func viewDidLayoutSubviews() {
-        scrollView.delegate = self
-        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        
-    }
-    
-    func getRepoDetails(username: String) {
-        _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
-            DispatchQueue.main.async {
-                guard let data = data else {
-                    print(error?.localizedDescription ?? "unknown error")
-                    return
-                }
-                self.repos = data
-                let repositories = Details(context: self.dataController.viewContext)
-                for item in data {
-                    repositories.creationDate = Date()
-                    repositories.repoCreationDate = item.createdAt
-                    repositories.language = item.language
-                    repositories.name = item.name
-                    repositories.repoDescription = item.description
-                    repositories.stargazersCount = Int32("\(String(describing: item.watchersCount))") ?? 0
-                    repositories.watchersCount = Int32("\(String(describing: item.watchersCount))") ?? 0
-                }
-                do {
-                    try self.dataController.viewContext.save()
-                } catch {
-                    print("saving error: \(error.localizedDescription)")
-                }
-            }
-        }
-    }
-    
+    // MARK: - CoreData set up
     
     fileprivate func setupFetchedResultsController() {
         let fetchRequest:NSFetchRequest<Details> = Details.fetchRequest()
         guard let selectedUser = selectedUser else {return}
         let predicate = NSPredicate(format: "user == %@", selectedUser)
         fetchRequest.predicate = predicate
-        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
-    
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(selectedUser)-details")
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(selectedUser.creationDate)-details")
+        
         fetchedResultsController.delegate = self
         
         do {
