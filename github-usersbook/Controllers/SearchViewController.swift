@@ -103,15 +103,28 @@ extension SearchViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
-        if searchText.count > 2 {
-            setupFetchedResultsController(searchText)
+        // Performing delay between searches. If uers is typing previous request is being terminated.
+        
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload(_:)), object: searchBar)
+        perform(#selector(self.reload(_:)), with: searchBar, afterDelay: 0.75)
+    }
+    
+    @objc func reload(_ searchBar: UISearchBar) {
+        
+        // No further verification on the endpoint in APIEndpoint class as the GitHub API does not accept logins with white spaces
+        
+        guard let searchQuery = searchBar.text, searchQuery.trimmingCharacters(in: .whitespaces) != "" else {return}
+        
+        if searchQuery.count > 2 {
+            
+            setupFetchedResultsController(searchQuery)
             tableView.reloadData()
             
             if fetchedResultsController.fetchedObjects?.count == 0 {
                 let gitHubUser = User(context: dataController.viewContext)
                 
                 
-                _ = APIEndpoints.search(query: searchText) { (data, error) in
+                _ = APIEndpoints.search(query: searchQuery) { (data, error) in
                     for user in data {
                         gitHubUser.avatarUrl = user.avatar
                         gitHubUser.creationDate = Date()
@@ -139,10 +152,7 @@ extension SearchViewController: UISearchBarDelegate {
             }
         }
     }
-    
-    
-    
-    
+
     func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
         tableView.reloadData()
         return true

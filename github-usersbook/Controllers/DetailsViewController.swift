@@ -13,7 +13,7 @@ import CoreData
 
 class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
-
+    
     var fetchedResultsController: NSFetchedResultsController<Details>!
     var dataController: DataController!
     
@@ -59,21 +59,25 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         createUserCard()
         createReposCard()
         
+        // setting avatar placeholder
+        
         userAvatar.image = UIImage(named: "user-default")
         guard let selectedUser = selectedUser else {
             print("No user data")
             return
         }
+        
+        // setting users avatar if its already downloaded. If not, there's an attempt to download it.
+        
         guard let image = selectedUser.avatar else {
-            
-
-            
+            guard let avatarUrl = selectedUser.avatarUrl else {return}
+            downloadAvatar(avatar: avatarUrl)
             return
         }
-        userAvatar.image = UIImage(data: selectedUser.avatar)
+        userAvatar.image = UIImage(data: image)
         nicknameLabel.text = "🤓 \(selectedUser.login!)"
         scoreLabel.text = "Scoring ✅: \(String(format: "%.1f", selectedUser.score))"
-       
+        
         getRepoDetails(username: selectedUser.login!)
         
         
@@ -81,7 +85,25 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     }
     
     
-    
+    func downloadAvatar(avatar: String) {
+        if let avatarURL = URL(string: avatar) {
+            DispatchQueue.main.async {
+                APIEndpoints.downloadUsersAvatar(avatarURL: avatarURL) {
+                    (data, error) in
+                    DispatchQueue.main.async {
+                        guard let data = data else {
+                            return
+                        }
+                        self.userAvatar.image = UIImage(data: data)
+                        let gitHubUser = User(context: self.dataController.viewContext)
+                        gitHubUser.avatar = data
+                        
+                        try? self.dataController.viewContext.save()
+                    }
+                }
+            }
+        }
+    }
     
     override func viewDidLayoutSubviews() {
         scrollView.delegate = self
@@ -90,7 +112,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     }
     
     func getRepoDetails(username: String) {
-       _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
+        _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
             DispatchQueue.main.async {
                 guard let data = data else {
                     print(error?.localizedDescription ?? "unknown error")
@@ -124,10 +146,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         fetchRequest.predicate = predicate
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
-
-        
-        print("context: \(dataController.viewContext)")
-        
+    
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(selectedUser)-details")
         fetchedResultsController.delegate = self
         
@@ -143,5 +162,5 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
 
 extension DetailsViewController: NSFetchedResultsControllerDelegate {
     
- 
+    
 }
