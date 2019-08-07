@@ -103,24 +103,40 @@ extension DetailsViewController {
         
     }
     
-
-    func createReposCard() {
-        
   
-        
-        generalContainer.addSubview(reposCard)
-        
-        //MARK: - Detail view constraints
-        
-        //MARK: ReposCard container constraints
-        
-        reposCard.topAnchor.constraint(equalTo: userCardContainerView.bottomAnchor, constant: 24).isActive = true
-        
-        reposCard.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 36).isActive = true
-        reposCard.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -36).isActive = true
-        reposCard.heightAnchor.constraint(lessThanOrEqualToConstant: 200).isActive = true
-        
-    }
+    func createReposCard() {
 
-    
-}
+//       let concurrent = DispatchQueue(label: "github-app/createReposCard", attributes: .concurrent)
+//
+//        concurrent.async(flags: .barrier) { [weak self] in
+//            guard let self = self else {
+//                return
+//            }
+//
+              print("entering")
+            let details = Details(context: self.dataController.viewContext)
+            try? fetchedResultsController.performFetch()
+            print(repos)
+            print(details)
+//            // 3
+//            DispatchQueue.main.async { [weak self] in
+//
+        
+                generalContainer.addSubview(reposCard)
+                
+                //MARK: - Detail view constraints
+                
+                //MARK: ReposCard container constraints
+                
+                reposCard.topAnchor.constraint(equalTo: userCardContainerView.bottomAnchor, constant: 24).isActive = true
+                
+                reposCard.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 36).isActive = true
+                reposCard.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -36).isActive = true
+                reposCard.heightAnchor.constraint(lessThanOrEqualToConstant: 200).isActive = true
+             
+            }
+        }
+
+
+
+
