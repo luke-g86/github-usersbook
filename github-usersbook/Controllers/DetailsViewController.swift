@@ -19,7 +19,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
     var repos: [UsersRepositories] = []
     
-    var selectedUser: User! {
+    var selectedUser: User? {
         didSet {
             presentData()
         }
@@ -81,27 +81,11 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         
     }
     
-//    func downloadAvatar(avatar: String) {
-//        if let avatarURL = URL(string: avatar) {
-//            DispatchQueue.main.async {
-//                APIEndpoints.downloadUsersAvatar(avatarURL: avatarURL) {
-//                    (data, error) in
-//
-//                    guard let data = data else {
-//                        return
-//                    }
-//                    self.userAvatar.image = UIImage(data: data)
-//
-//                }
-//            }
-//        }
-//    }
-    
     func getRepoDetails(username: String) {
-        APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
+       _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
             DispatchQueue.main.async {
                 guard let data = data else {
-                    print(error?.localizedDescription)
+                    print(error?.localizedDescription ?? "unknown error")
                     return
                 }
                 self.repos = data

@@ -17,9 +17,6 @@ class SearchViewController: UITableViewController {
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<User>!
     
-    weak var delegate: UserSelectionDelegate?
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupFetchedResultsController()
@@ -217,26 +214,15 @@ extension SearchViewController {
         if segue.identifier == "showDetails" {
             if let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController {
                 
-                //            guard let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController else {
-                //                print("error")
-                //                return }
-                vc.dataController = dataController
-                vc.selectedUser = sender as? User
-                print("segue")
-                
-                if let indexPath = tableView.indexPathForSelectedRow {
-                    
-                  
-                    vc.userSelected(fetchedResultsController.object(at: indexPath))
-                    print("segue2")
-                    
-                    print("passing data context: \(dataController)")
-                    
-                    vc.dataController = dataController
+                    if let indexPath = self.tableView.indexPathForSelectedRow {
+                    let user = self.fetchedResultsController.object(at: indexPath)
+                        
+                        vc.dataController = dataController
+                        vc.selectedUser = user
                 }
+                
+        
             }
-            
-            
         }
     }
     
@@ -245,10 +231,7 @@ extension SearchViewController {
 //MAKR: Dependency injection for coreData
 
 extension SearchViewController: NSFetchedResultsControllerDelegate {
-    //    func setDataController(stack: DataController) {
-    //        self.dataController = stack
-    //    }
-    
+ 
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch type {
@@ -282,14 +265,6 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
     }
-    
-    
-}
-
-extension SearchViewController: UserSelectionDelegate {
-    func userSelected(_ newUser: User) {
-    }
-    
 }
 
 extension SearchViewController {
