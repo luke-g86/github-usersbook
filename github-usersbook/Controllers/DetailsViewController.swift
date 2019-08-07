@@ -13,21 +13,14 @@ import CoreData
 
 class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
-    
-    
-    //    @IBOutlet weak var userAvatar: UIImageView!
-    @IBOutlet weak var userLogin: UILabel!
-    
-    
+
     var fetchedResultsController: NSFetchedResultsController<Details>!
     var dataController: DataController!
-    weak var delegate: SearchViewController?
     
     var repos: [UsersRepositories] = []
     
     var selectedUser: User? {
         didSet {
-            
             presentData()
         }
     }
@@ -59,26 +52,25 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
     func presentData() {
         
+        setupFetchedResultsController()
         loadViewIfNeeded()
         self.navigationItem.title = "User details"
         
         createUserCard()
         createReposCard()
         
-        
         userAvatar.image = UIImage(named: "user-default")
         guard let selectedUser = selectedUser else {
             print("No user data")
             return
         }
-        let avatar = selectedUser.avatarUrl
+        userAvatar.image = UIImage(data: selectedUser.avatar!)
         nicknameLabel.text = "🤓 \(selectedUser.login!)"
         scoreLabel.text = "Scoring ✅: \(String(format: "%.1f", selectedUser.score))"
-        DispatchQueue.main.async {
-            self.downloadAvatar(avatar: avatar!)
-            
-        }
+       
         getRepoDetails(username: selectedUser.login!)
+        
+        
         
     }
     
@@ -89,27 +81,11 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         
     }
     
-    func downloadAvatar(avatar: String) {
-        if let avatarURL = URL(string: avatar) {
-            DispatchQueue.main.async {
-                APIEndpoints.downloadUsersAvatar(avatarURL: avatarURL) {
-                    (data, error) in
-                    
-                    guard let data = data else {
-                        return
-                    }
-                    self.userAvatar.image = UIImage(data: data)
-                    
-                }
-            }
-        }
-    }
-    
     func getRepoDetails(username: String) {
-        APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
+       _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
             DispatchQueue.main.async {
                 guard let data = data else {
-                    print(error?.localizedDescription)
+                    print(error?.localizedDescription ?? "unknown error")
                     return
                 }
                 self.repos = data
@@ -120,9 +96,13 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
                     repositories.language = item.language
                     repositories.name = item.name
                     repositories.repoDescription = item.description
-                    repositories.stargazersCount =
-                    repositories.watchersCount = item.watchersCount
-                    
+                    repositories.stargazersCount = Int32("\(String(describing: item.watchersCount))") ?? 0
+                    repositories.watchersCount = Int32("\(String(describing: item.watchersCount))") ?? 0
+                }
+                do {
+                    try self.dataController.viewContext.save()
+                } catch {
+                    print("saving error: \(error.localizedDescription)")
                 }
             }
         }
@@ -136,6 +116,9 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         fetchRequest.predicate = predicate
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
+
+        
+        print("context: \(dataController.viewContext)")
         
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(selectedUser)-details")
         fetchedResultsController.delegate = self
@@ -149,12 +132,8 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
 }
 
-extension DetailsViewController: UserSelectionDelegate {
-    func userSelected(_ newUser: User) {
-        selectedUser = newUser
-    }
-}
 
 extension DetailsViewController: NSFetchedResultsControllerDelegate {
     
+ 
 }

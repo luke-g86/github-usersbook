@@ -37,11 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let splitViewController = window?.rootViewController as! UISplitViewController
         let leftViewController = splitViewController.viewControllers.first as! UINavigationController
-        //        for child in leftViewController.viewControllers ?? [] {
-        //            if let top = child as? DataControllerClient {
-        //                top.setDataController(stack: dataController)
-        //            }
-        //        }
+   
         let masterViewController = leftViewController.topViewController as! SearchViewController
         let rightViewController = splitViewController.viewControllers.last as! UINavigationController
         let detailsViewController = rightViewController.topViewController as!

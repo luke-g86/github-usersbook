@@ -16,9 +16,6 @@ class SearchViewController: UITableViewController {
     
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<User>!
-
-    weak var delegate: UserSelectionDelegate?
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,9 +25,9 @@ class SearchViewController: UITableViewController {
         cleaningDataBase()
         
         navigationItem.title = "GitHub users finder"
-
+        
     }
-
+    
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
@@ -47,7 +44,7 @@ class SearchViewController: UITableViewController {
         tableView.refreshControl = refreshControl
     }
     
-
+    
     
     func setupFetchedResultsController(_ searchText: String? = nil) {
         
@@ -122,12 +119,27 @@ extension SearchViewController: UISearchBarDelegate {
                         gitHubUser.score = user.score ?? 0
                         gitHubUser.reposUrl = user.reposUrl
                     }
-                    try? self.dataController.viewContext.save()
-                    self.tableView.reloadData()
+                    
+                    guard let avatarURL = gitHubUser.avatarUrl else {return}
+                    if let url = URL(string: avatarURL) {
+                        
+                        APIEndpoints.downloadUsersAvatar(avatarURL: url) {
+                            (data, error) in
+                            
+                            guard let data = data else {
+                                return
+                            }
+                            gitHubUser.avatar = data
+                        }
+                        
+                        try? self.dataController.viewContext.save()
+                        self.tableView.reloadData()
+                    }
                 }
             }
         }
     }
+    
     
     
     
@@ -175,7 +187,7 @@ extension SearchViewController {
         
         cell.userNickname.text = gitHubUser.login
         cell.userAvatar.image = UIImage(named: "user-default")
-  
+        
         
         if let avatar = gitHubUser.avatarUrl {
             if let avatarURL = URL(string: avatar) {
@@ -194,32 +206,32 @@ extension SearchViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "showDetail", sender: nil)
+        performSegue(withIdentifier: "showDetails", sender: nil)
     }
     
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showDetail" {
-            guard let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController else {
-                return }
-            if let indexPath = tableView.indexPathForSelectedRow {
+        if segue.identifier == "showDetails" {
+            if let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController {
                 
-                vc.delegate = self
-                vc.userSelected(fetchedResultsController.object(at: indexPath))
-                vc.dataController = dataController
+                    if let indexPath = self.tableView.indexPathForSelectedRow {
+                    let user = self.fetchedResultsController.object(at: indexPath)
+                        
+                        vc.dataController = dataController
+                        vc.selectedUser = user
+                }
+                
+        
             }
         }
     }
-
+    
 }
 
 //MAKR: Dependency injection for coreData
 
-extension SearchViewController: DataControllerClient, NSFetchedResultsControllerDelegate {
-    func setDataController(stack: DataController) {
-        self.dataController = stack
-    }
-    
+extension SearchViewController: NSFetchedResultsControllerDelegate {
+ 
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch type {
@@ -253,14 +265,6 @@ extension SearchViewController: DataControllerClient, NSFetchedResultsController
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
     }
-    
-    
-}
-
-extension SearchViewController: UserSelectionDelegate {
-    func userSelected(_ newUser: User) {
-    }
-    
 }
 
 extension SearchViewController {
