@@ -19,22 +19,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         dataController.load()
         
-        // Reference to the persistance
-        
-        /*
-         uard let splitViewController = window?.rootViewController as? UISplitViewController,
-         let leftNavController = splitViewController.viewControllers.first as? UINavigationController,
-         let masterViewController = leftNavController.topViewController as? MasterViewController,
-         let detailViewController = splitViewController.viewControllers.last as? DetailViewController
-         else { fatalError() }
-         
-         let firstMonster = masterViewController.monsters.first
-         detailViewController.monster = firstMonster
-         
-         return true
-         */
-        
-        
         let splitViewController = window?.rootViewController as! UISplitViewController
         let leftViewController = splitViewController.viewControllers.first as! UINavigationController
    

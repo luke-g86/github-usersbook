@@ -152,6 +152,7 @@ extension DetailsViewController {
         detailsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "reposCell")
         detailsTableView.delegate = self
         detailsTableView.dataSource = self
+        
         //        detailsTableView.translatesAutoresizingMaskIntoConstraints = false
         detailsTableView.backgroundColor = UIColor.red
         
@@ -188,14 +189,15 @@ extension DetailsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
- 
         let details = fetchedResultsController.object(at: indexPath)
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reposCell") as! UITableViewCell
+        let reuseIdentifier = "reposCell"
+    
+        var cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as! UITableViewCell
+        cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: reuseIdentifier)
         
         cell.textLabel?.text = details.name
         cell.detailTextLabel?.text = "Number of stars ⭐️: \(String(describing: details.stargazersCount))"
+        
         
         
         return cell

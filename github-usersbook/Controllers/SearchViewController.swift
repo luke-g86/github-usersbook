@@ -13,6 +13,7 @@ import CoreData
 class SearchViewController: UITableViewController {
     
     @IBOutlet weak var searchBar: UISearchBar!
+
     
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<User>!
@@ -22,7 +23,7 @@ class SearchViewController: UITableViewController {
         setupFetchedResultsController()
         setupSearchBar()
         setTableView()
-        cleaningDataBase()
+        cleaningDatabase()
         
         navigationItem.title = "GitHub users finder"
         
@@ -31,9 +32,29 @@ class SearchViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
-        cleaningDataBase()
+        cleaningDatabase()
         tableView.reloadData()
+        
+        
+        
+        // Refresh control add in tableview.
+        guard let refreshControl = refreshControl else {return}
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        
+        
+        self.tableView.addSubview(refreshControl)
+        
+        
+        
     }
+    
+    @objc func refresh(_ sender: Any) {
+        cleaningDatabase()
+        setupFetchedResultsController()
+        // Call webservice here after reload tableview.
+    }
+    
     
     
     func setTableView() {
@@ -72,7 +93,7 @@ class SearchViewController: UITableViewController {
         }
     }
     
-    func cleaningDataBase() {
+    func cleaningDatabase() {
         
         // delete all entries older then 8 days which do not have saved details
         
@@ -84,7 +105,7 @@ class SearchViewController: UITableViewController {
         guard let data = fetchedResultsController.fetchedObjects else { return }
         for object in data {
             // deletion if object has no details, creation date or it is older than full 7 days
-            if (object.details?.count == 0) && (object.creationDate ?? expirationDate <= expirationDate) {
+            if (object.details?.count == 0) && (object.creationDate ?? expirationDate <= expirationDate) || !object.displayed {
                 dataController.viewContext.delete(object)
             }
         }
@@ -147,7 +168,7 @@ extension SearchViewController: UISearchBarDelegate {
                     }
                         }
                         
-//                        try? self.dataController.viewContext.save()
+                        try? self.dataController.viewContext.save()
                         self.tableView.reloadData()
                     }
                 }
@@ -166,10 +187,10 @@ extension SearchViewController: UISearchBarDelegate {
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         searchBar.showsCancelButton = false
+        cleaningDatabase()
         setupFetchedResultsController()
         tableView.reloadData()
-        dataController.viewContext.refreshAllObjects()
-        print("ended editing")
+
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -181,7 +202,7 @@ extension SearchViewController: UISearchBarDelegate {
     
 }
 
-//MARK: - tableView data source
+//MARK: - tableView
 
 extension SearchViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -195,13 +216,12 @@ extension SearchViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let gitHubUser = fetchedResultsController.object(at: indexPath)
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! CustomTableViewCell
         
         cell.userNickname.text = gitHubUser.login
         cell.userAvatar.image = UIImage(named: "user-default")
         
-        
+        //MARK: Downloading avatar
         if let avatar = gitHubUser.avatarUrl {
             if let avatarURL = URL(string: avatar) {
                 
@@ -220,10 +240,41 @@ extension SearchViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "showDetails", sender: nil)
-        
-        
+    
     }
     
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
+    }
+    
+        //MARK: Animation
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        UIView.animate(withDuration: 0.4) {
+            cell.transform = CGAffineTransform.identity
+        }
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        let animationHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
+            // This block will be called several times during rotation,
+            // so the tableView change more smoothly
+            self?.tableView.reloadData()
+            self?.tableView.frame = self!.view.frame
+        }
+        
+        let completionHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
+            // This block will be called when rotation will be completed
+            self?.tableView.reloadData()
+        }
+        coordinator.animate(alongsideTransition: animationHandler, completion: completionHandler)
+    }
+
+    
+    //MARK: - Segue
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetails" {
@@ -245,7 +296,7 @@ extension SearchViewController {
     
 }
 
-//MAKR: Dependency injection for coreData
+//MARK: - CoreData
 
 extension SearchViewController: NSFetchedResultsControllerDelegate {
  
@@ -284,33 +335,4 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
     }
 }
 
-extension SearchViewController {
-    
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
-    }
-    
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        cell.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-        UIView.animate(withDuration: 0.4) {
-            cell.transform = CGAffineTransform.identity
-        }
-    }
-    
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        
-        let animationHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
-            // This block will be called several times during rotation,
-            // so the tableView change more smoothly
-            self?.tableView.reloadData()
-            self?.tableView.frame = self!.view.frame
-        }
-        
-        let completionHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
-            // This block will be called when rotation will be completed
-            self?.tableView.reloadData()
-        }
-        coordinator.animate(alongsideTransition: animationHandler, completion: completionHandler)
-    }
-}
+

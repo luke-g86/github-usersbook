@@ -78,6 +78,8 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
             return
         }
         
+        selectedUser.displayed = true
+        
         // setting users avatar if its already downloaded. If not, there's an attempt to download it.
         
         if let image = selectedUser.avatar {
