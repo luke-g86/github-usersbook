@@ -54,9 +54,6 @@
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
-                                <connections>
-                                    <segue destination="9Cy-6w-FmL" kind="showDetail" identifier="showDetails" id="9J1-iu-QFR"/>
-                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -67,6 +64,7 @@
                     <navigationItem key="navigationItem" title="Root View Controller" id="AAR-v7-zMf"/>
                     <connections>
                         <outlet property="searchBar" destination="o91-ai-2K5" id="Axi-N5-8jh"/>
+                        <segue destination="9Cy-6w-FmL" kind="showDetail" identifier="showDetails" id="FaC-al-NDg"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qx7-rc-bC0" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -101,7 +99,7 @@
                 </splitViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MWR-BL-AmH" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="284" y="-305"/>
+            <point key="canvasLocation" x="-564" y="-232"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="n6m-lW-o3N">
@@ -121,22 +119,8 @@
             </objects>
             <point key="canvasLocation" x="1201.449275362319" y="19.419642857142858"/>
         </scene>
-        <!--View Controller-->
-        <scene sceneID="94a-kB-rNB">
-            <objects>
-                <viewController id="Zxo-bM-caL" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="D5Q-Xh-sA6">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <viewLayoutGuide key="safeArea" id="fKZ-1A-37f"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Mtz-zH-Eba" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-        </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="9J1-iu-QFR"/>
+        <segue reference="FaC-al-NDg"/>
     </inferredMetricsTieBreakers>
 </document>

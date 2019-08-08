@@ -112,7 +112,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     func getRepoDetails(username: String) {
         
         self.dispatchGroup.enter()
-        let repositories = Details(context: self.dataController.viewContext)
+     
         _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
             guard let data = data else {
                 print(error?.localizedDescription ?? "unknown error")
@@ -121,6 +121,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
             self.repos = data
             //MARK: Defining ManagedObject
             for item in data {
+                let repositories = Details(context: self.dataController.viewContext)
                 repositories.creationDate = Date()
                 repositories.repoCreationDate = item.createdAt
                 repositories.language = item.language
@@ -195,5 +196,9 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
 
 extension DetailsViewController: NSFetchedResultsControllerDelegate {
     
+    
+}
+
+extension DetailsViewController: UISplitViewControllerDelegate {
     
 }

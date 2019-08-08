@@ -195,6 +195,7 @@ extension DetailsViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "reposCell") as! UITableViewCell
         
         cell.textLabel?.text = details.name
+        cell.detailTextLabel?.text = "Number of stars ⭐️: \(String(describing: details.stargazersCount))"
         
         
         return cell

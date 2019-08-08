@@ -111,9 +111,10 @@ extension SearchViewController: UISearchBarDelegate {
     
     @objc func reload(_ searchBar: UISearchBar) {
         
-        // No further verification on the endpoint in APIEndpoint class as the GitHub API does not accept logins with white spaces
+        // No further verification on the endpoint in APIEndpoint class as the GitHub API does not accept logins with white spaces.
         
-        guard let searchQuery = searchBar.text, searchQuery.trimmingCharacters(in: .whitespaces) != "" else {return}
+        guard let txt = searchBar.text else {return}
+        let searchQuery = txt.filter{!$0.isWhitespace}
         
         if searchQuery.count > 2 {
         
@@ -121,20 +122,16 @@ extension SearchViewController: UISearchBarDelegate {
             tableView.reloadData()
             
             if fetchedResultsController.fetchedObjects?.count == 0 {
-                let gitHubUser = User(context: dataController.viewContext)
-                
-                
                 _ = APIEndpoints.search(query: searchQuery) { (data, error) in
                     
                     DispatchQueue.main.async {
                         for user in data {
+                            let gitHubUser = User(context: self.dataController.viewContext)
                             gitHubUser.avatarUrl = user.avatar
                             gitHubUser.creationDate = Date()
                             gitHubUser.login = user.login
                             gitHubUser.score = user.score ?? 0
                             gitHubUser.reposUrl = user.reposUrl
-
-                        }
 
                     guard let avatarURL = gitHubUser.avatarUrl else {return}
                     if let url = URL(string: avatarURL) {
@@ -148,8 +145,9 @@ extension SearchViewController: UISearchBarDelegate {
                             gitHubUser.avatar = data
                         }
                     }
+                        }
                         
-                        try? self.dataController.viewContext.save()
+//                        try? self.dataController.viewContext.save()
                         self.tableView.reloadData()
                     }
                 }
@@ -170,14 +168,15 @@ extension SearchViewController: UISearchBarDelegate {
         searchBar.showsCancelButton = false
         setupFetchedResultsController()
         tableView.reloadData()
+        dataController.viewContext.refreshAllObjects()
         print("ended editing")
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.endEditing(true)
-        
+        dataController.viewContext.refreshAllObjects()
         tableView.reloadData()
-        print("cancel")
+    
     }
     
 }
@@ -221,6 +220,8 @@ extension SearchViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "showDetails", sender: nil)
+        
+        
     }
     
     
@@ -234,7 +235,9 @@ extension SearchViewController {
                         vc.dataController = dataController
                         vc.selectedUser = user
                 }
-                
+            
+                vc.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
+                vc.navigationItem.leftItemsSupplementBackButton = true
         
             }
         }
