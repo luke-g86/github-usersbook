@@ -43,6 +43,7 @@ class SearchViewController: UITableViewController {
 //
     }
     
+
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()

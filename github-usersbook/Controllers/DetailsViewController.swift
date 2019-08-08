@@ -102,6 +102,8 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         dispatchGroup.notify(queue: dispatchQueue) {
             DispatchQueue.main.async {
                 self.createReposCard()
+       
+                self.detailsTableView.reloadData()
             }
         }
     }
@@ -123,25 +125,27 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
             self.repos = data
             //MARK: Defining ManagedObject
             for item in data {
+                print("creating objects")
                 let repositories = Details(context: self.dataController.viewContext)
                 repositories.creationDate = Date()
                 repositories.repoCreationDate = item.createdAt
                 repositories.language = item.language
                 repositories.name = item.name
                 repositories.repoDescription = item.description
-                repositories.stargazersCount = Int32("\(String(describing: item.watchersCount))") ?? 0
-                repositories.watchersCount = Int32("\(String(describing: item.watchersCount))") ?? 0
+                repositories.stargazersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
+                repositories.watchersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
                 repositories.user = self.selectedUser!
             }
             //MARK: Saving data to CoreData
             do {
                 try self.dataController.viewContext.save()
+                print("saving")
             } catch {
                 print("saving error: \(error.localizedDescription)")
             }
             do {
                 try self.fetchedResultsController.performFetch()
-                
+                print("fetching")
             } catch {
                 print("fetching error: \(error.localizedDescription)")
             }
@@ -179,8 +183,9 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         guard let selectedUser = selectedUser else {return}
         let predicate = NSPredicate(format: "user == %@", selectedUser)
         fetchRequest.predicate = predicate
-        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
+        let dateSortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+        let starsSortDescriptor = NSSortDescriptor(key: "stargazersCount", ascending: false)
+        fetchRequest.sortDescriptors = [starsSortDescriptor, dateSortDescriptor]
         
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(selectedUser.creationDate)-details")
         

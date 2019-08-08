@@ -104,28 +104,30 @@ extension DetailsViewController {
     
     
     func createReposCard() {
+        print("creating repos card")
+//        try? fetchedResultsController.performFetch()
         
-        print("repos: \(repos.count)")
-        for object in repos {
-            print(object.name)
-        }
+ 
         
-        let details = Details(context: dataController.viewContext)
-        
-        print(details)
-        let list = fetchedResultsController.fetchedObjects
-        print("list count: \(list!.count)")
-        for item in list! {
-            print(item.name)
-        }
-        
+        let size: Int = {
+            if repos.count == 0 {
+                return 200
+            }
+            return repos.count * 80
+        }()
         
         generalContainer.addSubview(reposCard)
         
         
+        //MARK: Section label
         
-     
         sectionName.font = UIFont.preferredFont(forTextStyle: .headline)
+        
+        //MARK: ReposCard config
+     
+        reposCard.isUserInteractionEnabled = true
+        
+        
         
         reposCard.addSubview(sectionName)
         
@@ -139,7 +141,10 @@ extension DetailsViewController {
         reposCard.topAnchor.constraint(equalTo: sectionName.bottomAnchor, constant: 8).isActive = true
         reposCard.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 36).isActive = true
         reposCard.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -36).isActive = true
-        reposCard.heightAnchor.constraint(lessThanOrEqualToConstant: 500).isActive = true
+        reposCard.heightAnchor.constraint(lessThanOrEqualToConstant: CGFloat(size)).isActive = true
+        
+        
+        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: CGFloat(size)).isActive = true
         
         reposCard.setNeedsLayout()
         reposCard.layoutIfNeeded()
@@ -156,6 +161,7 @@ extension DetailsViewController {
         //        detailsTableView.translatesAutoresizingMaskIntoConstraints = false
         detailsTableView.backgroundColor = UIColor.red
         
+        detailsTableView.reloadData()
     
         //MARK: - Detail view constraint
         
@@ -196,13 +202,19 @@ extension DetailsViewController: UITableViewDelegate, UITableViewDataSource {
         cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: reuseIdentifier)
         
         cell.textLabel?.text = details.name
-        cell.detailTextLabel?.text = "Number of stars ⭐️: \(String(describing: details.stargazersCount))"
+        cell.textLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: 18)
+
+        cell.detailTextLabel?.text = "⭐️ Number of stars: \(String(describing: details.stargazersCount)) || 📅 Creation date: \(String(describing: details.repoCreationDate)) || 👀 Watchers: \(String(describing: details.watchersCount))"
         
+        cell.detailTextLabel?.font = UIFont(name: "HelveticaNeue-Light", size: 16)
         
         
         return cell
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
+    }
 }
 
 
