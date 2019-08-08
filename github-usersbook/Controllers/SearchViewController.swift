@@ -25,8 +25,22 @@ class SearchViewController: UITableViewController {
         setTableView()
         cleaningDatabase()
         
+        splitViewController?.delegate = self
         navigationItem.title = "GitHub users finder"
         
+           NotificationCenter.default.addObserver(self, selector: #selector(refresh(_:)), name: NSNotification.Name(rawValue: "reloadTable"), object: nil)
+        
+        // Refresh control add in tableview.
+        guard let refreshControl = refreshControl else {return}
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "searchCell")
+//        let action = #selector(SearchViewController.refreshControlDidStart(sender:event:))
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        
+      
+//
+        self.tableView.addSubview(refreshControl)
+//
     }
     
     
@@ -37,22 +51,22 @@ class SearchViewController: UITableViewController {
         
         
         
-        // Refresh control add in tableview.
-        guard let refreshControl = refreshControl else {return}
-        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
-        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
-        
-        
-        self.tableView.addSubview(refreshControl)
+
         
         
         
     }
     
+    @objc func refreshControlDidStart(sender: UIRefreshControl, event: UIEvent?) {
+        print("ping-pong")
+    }
+    
     @objc func refresh(_ sender: Any) {
+        print("ping")
         cleaningDatabase()
         setupFetchedResultsController()
         // Call webservice here after reload tableview.
+        refreshControl?.endRefreshing()
     }
     
     
@@ -332,6 +346,14 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
+    }
+}
+
+//MARK: Setting master view controller as first
+
+extension SearchViewController: UISplitViewControllerDelegate {
+    func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
+        return true
     }
 }
 
