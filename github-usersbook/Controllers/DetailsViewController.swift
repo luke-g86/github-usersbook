@@ -13,6 +13,25 @@ import CoreData
 
 class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
+    //MARK: - UI View objects
+    
+    let generalContainer = ViewsFactory.view(forBackground: UIColor.white, forAutoresizingMaskIntoConstraints: false)
+    var userAvatar = ViewsFactory.imageView(image: nil, forAutoresizingMaskIntoConstraints: false)
+    var nicknameLabel = ViewsFactory.label(text: "userNickname", color: UIColor.black, numberOfLines: 1, fontSize: 36)
+    let userCardContainerView = ViewsFactory.view(forBackground: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), forAutoresizingMaskIntoConstraints: false)
+    let scoreLabel = ViewsFactory.label(text: "userScore", color: UIColor.black, numberOfLines: 1, fontSize: 30)
+    let reposCard = ViewsFactory.view(forBackground: #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0), forAutoresizingMaskIntoConstraints: false)
+    let reposLabel = ViewsFactory.label(text: "Repositories", color: UIColor.darkGray, numberOfLines: 1, fontSize: 24)
+    let sectionName = ViewsFactory.label(text: "User repositories", color: UIColor.darkGray, numberOfLines: 1, fontSize: 18)
+    let detailsTableView = UITableView()
+    
+    
+    let scrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     
     var fetchedResultsController: NSFetchedResultsController<Details>!
     var dataController: DataController!
@@ -25,24 +44,8 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    //MARK: - View states
     
-    //MARK: UI View objects
-    
-    let generalContainer = ViewsFactory.view(forBackground: UIColor.white, forAutoresizingMaskIntoConstraints: false)
-    var userAvatar = ViewsFactory.imageView(image: nil, forAutoresizingMaskIntoConstraints: false)
-    var nicknameLabel = ViewsFactory.label(text: "userNickname", color: UIColor.black, numberOfLines: 1, fontSize: 36)
-    let userCardContainerView = ViewsFactory.view(forBackground: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), forAutoresizingMaskIntoConstraints: false)
-    let scoreLabel = ViewsFactory.label(text: "userScore", color: UIColor.black, numberOfLines: 1, fontSize: 30)
-    let reposCard = ViewsFactory.view(forBackground: #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0), forAutoresizingMaskIntoConstraints: false)
-    let reposLabel = ViewsFactory.label(text: "Repositories", color: UIColor.darkGray, numberOfLines: 1, fontSize: 24)
-    
-    
-    
-    let scrollView: UIScrollView = {
-        let view = UIScrollView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
@@ -50,9 +53,14 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         
     }
     
+    override func viewDidLayoutSubviews() {
+        scrollView.delegate = self
+        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+    }
+    
     
     func presentData() {
-        
+
         setupFetchedResultsController()
         loadViewIfNeeded()
         self.navigationItem.title = "User details"
@@ -67,7 +75,6 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     func settingUI() {
         
         guard let selectedUser = selectedUser else {
-            print("No user data")
             return
         }
         
@@ -98,30 +105,21 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     }
     
     
-    
-    override func viewDidLayoutSubviews() {
-        scrollView.delegate = self
-        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-    }
-    
     // MARK: - Networking
     
-    //MARK: Repo details download
+    //MARK: Repo details download for specific userName
     
     func getRepoDetails(username: String) {
         
         self.dispatchGroup.enter()
-        
         let repositories = Details(context: self.dataController.viewContext)
-        
         _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
-            
             guard let data = data else {
                 print(error?.localizedDescription ?? "unknown error")
                 return
             }
             self.repos = data
-            
+            //MARK: Defining ManagedObject
             for item in data {
                 repositories.creationDate = Date()
                 repositories.repoCreationDate = item.createdAt
@@ -132,7 +130,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
                 repositories.watchersCount = Int32("\(String(describing: item.watchersCount))") ?? 0
                 repositories.user = self.selectedUser!
             }
-            print("leaving")
+            //MARK: Saving data to CoreData
             do {
                 try self.dataController.viewContext.save()
             } catch {
