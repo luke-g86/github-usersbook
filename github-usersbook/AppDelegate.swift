@@ -33,6 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         masterViewController.dataController = dataController
         
+        splitViewController.preferredDisplayMode = .allVisible
         
         return true
     }

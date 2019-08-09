@@ -13,7 +13,9 @@ import CoreData
 class SearchViewController: UITableViewController {
     
     @IBOutlet weak var searchBar: UISearchBar!
-
+    
+    
+    var selection: Bool = false
     
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<User>!
@@ -40,6 +42,7 @@ class SearchViewController: UITableViewController {
       
 //
         self.tableView.addSubview(refreshControl)
+    
 //
     }
     
@@ -50,20 +53,31 @@ class SearchViewController: UITableViewController {
         cleaningDatabase()
         tableView.reloadData()
         
-        
-        
-
-        
-        
-        
+        if !selection {
+        perform(#selector(selectTableRow), with: nil, afterDelay: 1.0)
+        }
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+//        fetchedResultsController = nil
+    }
+    
+
+@objc func selectTableRow() {
+    if !tableView.visibleCells.isEmpty {
+        let indexPath = IndexPath(row: 0, section: 0)
+        
+        tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+        _ = tableView.delegate?.tableView?(tableView, didSelectRowAt: indexPath)
+        //            selectedDefaultIndexPath = true
+    }
+}
     
     @objc func refreshControlDidStart(sender: UIRefreshControl, event: UIEvent?) {
         print("ping-pong")
     }
     
     @objc func refresh(_ sender: Any) {
-        print("ping")
         cleaningDatabase()
         setupFetchedResultsController()
         // Call webservice here after reload tableview.
@@ -255,6 +269,7 @@ extension SearchViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "showDetails", sender: nil)
+        selection = true
     
     }
     

@@ -55,9 +55,18 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
     override func viewDidLayoutSubviews() {
         scrollView.delegate = self
-        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+//        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        fetchedResultsController = nil
+    }
+    
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        
+        self.updateViewConstraints()
+    }
     
     func presentData() {
 

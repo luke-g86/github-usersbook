@@ -23,24 +23,28 @@ extension DetailsViewController {
         scrollView.isScrollEnabled = true
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         
-        // CONSTRAINTS
+
+        //MARK: Constraints - ScrollView
         
         scrollView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         scrollView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+
         
         // ADDING TO THE SUBVIEW
-        
+            
+            
         scrollView.addSubview(generalContainer)
         
         // CONTAINER'S VIEW CONSTRAINTS FOR USERCARD
         
+        //MARK: Constraints - UserCard
+        
         generalContainer.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
         generalContainer.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
         generalContainer.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        generalContainer.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        
+        generalContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         
         // AVATAR
         
@@ -73,51 +77,51 @@ extension DetailsViewController {
         generalContainer.bringSubviewToFront(userAvatar)
         generalContainer.bringSubviewToFront(nicknameLabel)
         
-        //MARK: - Elements' constraints
+
         
-        //MARK: UserCard container constraints
+        //MARK: Constraints - UserCards
         
         userCardContainerView.topAnchor.constraint(equalTo: generalContainer.topAnchor, constant: 36 + avatarHeight/2).isActive = true
         userCardContainerView.leadingAnchor.constraint(equalTo: generalContainer.leadingAnchor, constant: 36).isActive = true
         userCardContainerView.trailingAnchor.constraint(equalTo: generalContainer.trailingAnchor, constant: -36).isActive = true
         userCardContainerView.heightAnchor.constraint(lessThanOrEqualToConstant: 200).isActive = true
         
-        //MARK: Avatar constraints
+        //MARK: Constraints - Avatar
         
         userAvatar.topAnchor.constraint(equalTo: userCardContainerView.topAnchor, constant: -(avatarHeight / 2)).isActive = true
         userAvatar.centerXAnchor.constraint(equalTo: userCardContainerView.centerXAnchor, constant: 0).isActive = true
         userAvatar.widthAnchor.constraint(equalToConstant: 120).isActive = true
         userAvatar.heightAnchor.constraint(equalToConstant: 120).isActive = true
         
-        //MARK: Nickname label constraints
-        
+        //MARK: Constraints - Nickname label
+
         nicknameLabel.topAnchor.constraint(equalTo: userAvatar.bottomAnchor, constant: 12).isActive = true
         nicknameLabel.centerXAnchor.constraint(equalTo: userAvatar.centerXAnchor, constant: 0).isActive = true
         nicknameLabel.leadingAnchor.constraint(lessThanOrEqualTo: userCardContainerView.leadingAnchor, constant: 16).isActive = true
         nicknameLabel.trailingAnchor.constraint(lessThanOrEqualTo: userCardContainerView.trailingAnchor, constant: -16).isActive = true
         
-        //MARK: Score label constraints
+        //MARK: Constraints - Score Label
         
         scoreLabel.topAnchor.constraint(equalTo: nicknameLabel.bottomAnchor, constant: 24).isActive = true
         scoreLabel.centerXAnchor.constraint(equalTo: userCardContainerView.centerXAnchor, constant: 0).isActive = true
     }
     
+    //MARK: - Repositories' Container
+    
     
     func createReposCard() {
-        print("creating repos card")
+        
 //        try? fetchedResultsController.performFetch()
-        
- 
-        
+    
         let size: Int = {
             if repos.count == 0 {
                 return 200
             }
-            return repos.count * 80
+            return repos.count * 70
         }()
         
+
         generalContainer.addSubview(reposCard)
-        
         
         //MARK: Section label
         
@@ -126,62 +130,54 @@ extension DetailsViewController {
         //MARK: ReposCard config
      
         reposCard.isUserInteractionEnabled = true
-        
-        
-        
         reposCard.addSubview(sectionName)
         
+        
+        //MARK: Constraints - SectionName
         sectionName.topAnchor.constraint(equalTo: userCardContainerView.bottomAnchor, constant: 24).isActive = true
         sectionName.leadingAnchor.constraint(equalTo: reposCard.leadingAnchor, constant: 4).isActive = true
-        //        sectionName.bo.constraint(equalTo: self.view.trailingAnchor, constant: -36).isActive = true
- 
         
-        //MARK: ReposCard container constraints
-        
+        //MARK: Constraints - ReposContainer
         reposCard.topAnchor.constraint(equalTo: sectionName.bottomAnchor, constant: 8).isActive = true
         reposCard.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 36).isActive = true
         reposCard.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -36).isActive = true
-        reposCard.heightAnchor.constraint(lessThanOrEqualToConstant: CGFloat(size)).isActive = true
-        
-        
-        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: CGFloat(size)).isActive = true
+        reposCard.widthAnchor.constraint(equalTo: userCardContainerView.widthAnchor).isActive = true
+        reposCard.heightAnchor.constraint(equalToConstant: CGFloat(size) + 10).isActive = true
         
         reposCard.setNeedsLayout()
         reposCard.layoutIfNeeded()
         
-        
-        
-        //        let detailsTableView = UITableView()
-        
-        detailsTableView.frame = CGRect(x: 0, y: 0, width: reposCard.frame.width-24, height: reposCard.frame.height-24)
+
+        detailsTableView.frame = CGRect.zero
         detailsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "reposCell")
         detailsTableView.delegate = self
         detailsTableView.dataSource = self
-        
-        //        detailsTableView.translatesAutoresizingMaskIntoConstraints = false
-        detailsTableView.backgroundColor = UIColor.red
+        detailsTableView.clipsToBounds = true
+        detailsTableView.translatesAutoresizingMaskIntoConstraints = false
         
         detailsTableView.reloadData()
     
         //MARK: - Detail view constraint
+
         
         reposCard.addSubview(detailsTableView)
         reposCard.bringSubviewToFront(detailsTableView)
+        
     
+        //MARK: Constraints - update view size for detailsTableView and reposCard
+        detailsTableView.topAnchor.constraint(equalTo: reposCard.topAnchor, constant:8).isActive = true
+        detailsTableView.leadingAnchor.constraint(equalTo: reposCard.leadingAnchor, constant: 4).isActive = true
+        detailsTableView.trailingAnchor.constraint(equalTo: reposCard.trailingAnchor, constant: -4).isActive = true
+        detailsTableView.heightAnchor.constraint(equalToConstant: CGFloat(size)).isActive = true
+
         
-        detailsTableView.topAnchor.constraint(equalTo: reposCard.topAnchor, constant: 16).isActive = true
-        detailsTableView.leadingAnchor.constraint(equalTo: reposCard.leadingAnchor, constant: 12).isActive = true
-        detailsTableView.trailingAnchor.constraint(equalTo: reposCard.trailingAnchor, constant: 12).isActive = true
-        
-        print(detailsTableView.frame.size)
-        
-        
+        scrollView.bottomAnchor.constraint(equalTo: reposCard.bottomAnchor, constant: 0).isActive = true
+        scrollView.updateConstraints()
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollView.contentOffset.x = 0
     }
-    
 }
 
 extension DetailsViewController: UITableViewDelegate, UITableViewDataSource {
@@ -204,7 +200,7 @@ extension DetailsViewController: UITableViewDelegate, UITableViewDataSource {
         cell.textLabel?.text = details.name
         cell.textLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: 18)
 
-        cell.detailTextLabel?.text = "⭐️ Number of stars: \(String(describing: details.stargazersCount)) || 📅 Creation date: \(String(describing: details.repoCreationDate)) || 👀 Watchers: \(String(describing: details.watchersCount))"
+        cell.detailTextLabel?.text = "⭐️ Number of stars: \(String(describing: details.stargazersCount)) || 👀 Watchers: \(String(describing: details.watchersCount))"
         
         cell.detailTextLabel?.font = UIFont(name: "HelveticaNeue-Light", size: 16)
         

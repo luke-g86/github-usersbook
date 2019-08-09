@@ -19,6 +19,7 @@
 		A3E5733822F890D600B374EE /* ViewsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E5733722F890D600B374EE /* ViewsFactory.swift */; };
 		A3E5733C22F965F000B374EE /* InterfaceForDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E5733B22F965F000B374EE /* InterfaceForDetailsViewController.swift */; };
 		A3E5734022FC6E7F00B374EE /* TableViewExtention.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E5733F22FC6E7F00B374EE /* TableViewExtention.swift */; };
+		A3E5734222FD620400B374EE /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E5734122FD620400B374EE /* Network.swift */; };
 		C1027DF922F280E4000A5B94 /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1027DF822F280E4000A5B94 /* DetailsViewController.swift */; };
 		C1027DFF22F33E4C000A5B94 /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1027DFE22F33E4C000A5B94 /* CustomTableViewCell.swift */; };
 		C1027E0122F34B92000A5B94 /* Customization.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1027E0022F34B92000A5B94 /* Customization.swift */; };
@@ -41,6 +42,7 @@
 		A3E5733722F890D600B374EE /* ViewsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewsFactory.swift; sourceTree = "<group>"; };
 		A3E5733B22F965F000B374EE /* InterfaceForDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceForDetailsViewController.swift; sourceTree = "<group>"; };
 		A3E5733F22FC6E7F00B374EE /* TableViewExtention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewExtention.swift; sourceTree = "<group>"; };
+		A3E5734122FD620400B374EE /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		C1027DF822F280E4000A5B94 /* DetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsViewController.swift; sourceTree = "<group>"; };
 		C1027DFE22F33E4C000A5B94 /* CustomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
 		C1027E0022F34B92000A5B94 /* Customization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Customization.swift; sourceTree = "<group>"; };
@@ -108,6 +110,7 @@
 			children = (
 				A3E5733722F890D600B374EE /* ViewsFactory.swift */,
 				A3E5733F22FC6E7F00B374EE /* TableViewExtention.swift */,
+				A3E5734122FD620400B374EE /* Network.swift */,
 				A3E5733B22F965F000B374EE /* InterfaceForDetailsViewController.swift */,
 				C1027E0022F34B92000A5B94 /* Customization.swift */,
 				C1027DFE22F33E4C000A5B94 /* CustomTableViewCell.swift */,
@@ -200,6 +203,7 @@
 				0437CCD122EC9F7000BC65B2 /* DataController.swift in Sources */,
 				C1027DF922F280E4000A5B94 /* DetailsViewController.swift in Sources */,
 				A3E5733822F890D600B374EE /* ViewsFactory.swift in Sources */,
+				A3E5734222FD620400B374EE /* Network.swift in Sources */,
 				04F4C0AC22ED92080027ECF5 /* UsersRepositories.swift in Sources */,
 				A3E5733C22F965F000B374EE /* InterfaceForDetailsViewController.swift in Sources */,
 				C1027E0322F3D28D000A5B94 /* User+Extention.swift in Sources */,
