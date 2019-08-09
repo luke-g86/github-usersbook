@@ -64,7 +64,6 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        
         self.updateViewConstraints()
     }
     
@@ -79,8 +78,10 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         
         // setting UI for the details view
         settingUI()
+        
     }
     
+
     func settingUI() {
         
         guard let selectedUser = selectedUser else {
@@ -110,11 +111,11 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         // Creating details view (queue dispatched, waiting for the getRepoDetails to finish network request)
         dispatchGroup.notify(queue: dispatchQueue) {
             DispatchQueue.main.async {
-                self.createReposCard()
-       
-                self.detailsTableView.reloadData()
+                    self.createReposCard()
+                    self.detailsTableView.reloadData()
             }
         }
+
     }
     
     
@@ -122,10 +123,27 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: Repo details download for specific userName
     
+    func prepareDataBaseForFetchingNewData() {
+
+            // deleting details
+            try? fetchedResultsController.performFetch()
+            guard let details = fetchedResultsController.fetchedObjects else {return}
+     
+            
+            if details.count != 0 {
+                for detail in details {
+                    dataController.viewContext.delete(detail)
+                }
+                try? dataController.viewContext.save()
+                dataController.viewContext.refreshAllObjects()
+            }
+        }
+    
     func getRepoDetails(username: String) {
+        if Reachability.isConnectedWithInternet() {
+            prepareDataBaseForFetchingNewData()
         
         self.dispatchGroup.enter()
-     
         _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
             guard let data = data else {
                 print(error?.localizedDescription ?? "unknown error")
@@ -134,7 +152,6 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
             self.repos = data
             //MARK: Defining ManagedObject
             for item in data {
-                print("creating objects")
                 let repositories = Details(context: self.dataController.viewContext)
                 repositories.creationDate = Date()
                 repositories.repoCreationDate = item.createdAt
@@ -148,20 +165,15 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
             //MARK: Saving data to CoreData
             do {
                 try self.dataController.viewContext.save()
-                print("saving")
+                
             } catch {
                 print("saving error: \(error.localizedDescription)")
             }
-            do {
-                try self.fetchedResultsController.performFetch()
-                print("fetching")
-            } catch {
-                print("fetching error: \(error.localizedDescription)")
-            }
             self.dispatchGroup.leave()
+            }
         }
     }
-    
+
     
     // MARK: Avatar download
     
@@ -212,8 +224,41 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
 
 extension DetailsViewController: NSFetchedResultsControllerDelegate {
     
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        
+        switch type {
+        case .insert: detailsTableView.insertRows(at: [newIndexPath!], with: .fade)
+        case .delete: detailsTableView.deleteRows(at: [indexPath!], with: .fade)
+        case .update: detailsTableView.reloadRows(at: [indexPath!], with: .fade)
+        case .move: detailsTableView.moveRow(at: indexPath!, to: newIndexPath!)
+            
+        @unknown default: fatalError("invalid change type in controller didChange")
+        }
+    }
     
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        let indexSet = IndexSet(integer: sectionIndex)
+        
+        switch type {
+        case .insert: detailsTableView.insertSections(indexSet, with: .fade)
+        case .delete: detailsTableView.deleteSections(indexSet, with: .fade)
+        case .update, .move:
+            fatalError("Invalid change type in controller didChange at section")
+            
+        @unknown default:
+            fatalError("unknown coreData controller error")
+        }
+    }
+    
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        detailsTableView.beginUpdates()
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        detailsTableView.endUpdates()
+    }
 }
+
 
 extension DetailsViewController: UISplitViewControllerDelegate {
     

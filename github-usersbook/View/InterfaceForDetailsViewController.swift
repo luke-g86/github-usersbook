@@ -15,6 +15,7 @@ extension DetailsViewController {
     
     func createUserCard() {
         
+        
         super.view.addSubview(scrollView)
         
         //MARK: - Scroll layer
@@ -106,13 +107,14 @@ extension DetailsViewController {
         scoreLabel.centerXAnchor.constraint(equalTo: userCardContainerView.centerXAnchor, constant: 0).isActive = true
     }
     
-    //MARK: - Repositories' Container
+
     
     
     func createReposCard() {
         
-//        try? fetchedResultsController.performFetch()
+        try? fetchedResultsController.performFetch()
     
+        // max size of the table
         let size: Int = {
             if repos.count == 0 {
                 return 200
@@ -120,7 +122,6 @@ extension DetailsViewController {
             return repos.count * 70
         }()
         
-
         generalContainer.addSubview(reposCard)
         
         //MARK: Section label
@@ -157,8 +158,7 @@ extension DetailsViewController {
         
         detailsTableView.reloadData()
     
-        //MARK: - Detail view constraint
-
+        //MARK: - Detail view constrains
         
         reposCard.addSubview(detailsTableView)
         reposCard.bringSubviewToFront(detailsTableView)
@@ -180,6 +180,8 @@ extension DetailsViewController {
     }
 }
 
+//MARK: - TableView delegates
+
 extension DetailsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -196,14 +198,10 @@ extension DetailsViewController: UITableViewDelegate, UITableViewDataSource {
     
         var cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as! UITableViewCell
         cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: reuseIdentifier)
-        
         cell.textLabel?.text = details.name
         cell.textLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: 18)
-
-        cell.detailTextLabel?.text = "⭐️ Number of stars: \(String(describing: details.stargazersCount)) || 👀 Watchers: \(String(describing: details.watchersCount))"
-        
+        cell.detailTextLabel?.text = "🤖 \(String(describing: details.language ?? "none")) ⭐️ Number of stars: \(String(describing: details.stargazersCount))"
         cell.detailTextLabel?.font = UIFont(name: "HelveticaNeue-Light", size: 16)
-        
         
         return cell
     }

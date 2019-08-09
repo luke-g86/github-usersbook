@@ -30,71 +30,233 @@ class SearchViewController: UITableViewController {
         splitViewController?.delegate = self
         navigationItem.title = "GitHub users finder"
         
-           NotificationCenter.default.addObserver(self, selector: #selector(refresh(_:)), name: NSNotification.Name(rawValue: "reloadTable"), object: nil)
-        
-        // Refresh control add in tableview.
-        guard let refreshControl = refreshControl else {return}
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "searchCell")
-//        let action = #selector(SearchViewController.refreshControlDidStart(sender:event:))
-        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
-        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
-        
-      
-//
-        self.tableView.addSubview(refreshControl)
-    
-//
     }
-    
-
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
         cleaningDatabase()
         tableView.reloadData()
+        settingsForDevice()
         
-        if !selection {
-        perform(#selector(selectTableRow), with: nil, afterDelay: 1.0)
+    }
+    
+    
+    func settingsForDevice() {
+        if UIDevice.current.orientation.isLandscape || UIDevice.current.userInterfaceIdiom == .pad && !selection {
+            perform(#selector(selectTableRow), with: nil, afterDelay: 1.0)
         }
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-//        fetchedResultsController = nil
-    }
     
-
-@objc func selectTableRow() {
-    if !tableView.visibleCells.isEmpty {
-        let indexPath = IndexPath(row: 0, section: 0)
-        
-        tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
-        _ = tableView.delegate?.tableView?(tableView, didSelectRowAt: indexPath)
-        //            selectedDefaultIndexPath = true
-    }
-}
-    
-    @objc func refreshControlDidStart(sender: UIRefreshControl, event: UIEvent?) {
-        print("ping-pong")
-    }
-    
-    @objc func refresh(_ sender: Any) {
-        cleaningDatabase()
-        setupFetchedResultsController()
-        // Call webservice here after reload tableview.
-        refreshControl?.endRefreshing()
-    }
-    
-    
-    
+    //MARK: - Setting objects and UI behavior 
     func setTableView() {
         tableView.frame = self.view.frame
-        
         tableView.separatorColor = UIColor.clear
         tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "searchCell")
         tableView.allowsSelection = true
         tableView.refreshControl = refreshControl
     }
     
+    //MARK: TableView row selection
+    @objc func selectTableRow() {
+        if !tableView.visibleCells.isEmpty {
+            let indexPath = IndexPath(row: 0, section: 0)
+            
+            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+            _ = tableView.delegate?.tableView?(tableView, didSelectRowAt: indexPath)
+        }
+    }
+}
+
+//MARK: - Search
+
+extension SearchViewController: UISearchBarDelegate {
+    
+    func setupSearchBar() {
+        searchBar.placeholder = "Type at least 3 characters to search"
+        searchBar.delegate = self
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        // Performing delay between searches. If uers is typing previous request is being terminated.
+        
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload(_:)), object: searchBar)
+        perform(#selector(self.reload(_:)), with: searchBar, afterDelay: 0.75)
+    }
+    
+    @objc func reload(_ searchBar: UISearchBar) {
+        
+        // No further verification on the endpoint in APIEndpoint class as the GitHub API does not accept logins with white spaces.
+        
+        guard let txt = searchBar.text else {return}
+        let searchQuery = txt.filter{!$0.isWhitespace}
+        
+        if searchQuery.count > 2 {
+            
+            setupFetchedResultsController(searchQuery)
+            tableView.reloadData()
+            
+            if fetchedResultsController.fetchedObjects?.count == 0 {
+                _ = APIEndpoints.search(query: searchQuery) { (data, error) in
+                    
+                    DispatchQueue.main.async {
+                        for user in data {
+                            let gitHubUser = User(context: self.dataController.viewContext)
+                            gitHubUser.avatarUrl = user.avatar
+                            gitHubUser.creationDate = Date()
+                            gitHubUser.login = user.login
+                            gitHubUser.score = user.score ?? 0
+                            gitHubUser.reposUrl = user.reposUrl
+                            
+                            guard let avatarURL = gitHubUser.avatarUrl else {return}
+                            if let url = URL(string: avatarURL) {
+                                
+                                APIEndpoints.downloadUsersAvatar(avatarURL: url) {
+                                    (data, error) in
+                                    
+                                    guard let data = data else {
+                                        return
+                                    }
+                                    gitHubUser.avatar = data
+                                }
+                            }
+                        }
+                        
+                        try? self.dataController.viewContext.save()
+                        self.tableView.reloadData()
+                    }
+                }
+            }
+        }
+    }
+    
+    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
+        tableView.reloadData()
+        return true
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = true
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+        cleaningDatabase()
+        setupFetchedResultsController()
+        tableView.reloadData()
+        
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.endEditing(true)
+        searchBar.text = nil
+        cleaningDatabase()
+        setupFetchedResultsController()
+        tableView.reloadData()
+    }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        resignFirstResponder()
+    }
+    
+}
+
+//MARK: - tableView
+
+extension SearchViewController {
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return fetchedResultsController.sections?.count ?? 1
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let gitHubUser = fetchedResultsController.object(at: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! CustomTableViewCell
+        cell.userNickname.text = gitHubUser.login
+        cell.userAvatar.image = UIImage(named: "user-default")
+        
+        //MARK: Downloading avatar
+        if let avatar = gitHubUser.avatarUrl {
+            if let avatarURL = URL(string: avatar) {
+                APIEndpoints.downloadUsersAvatar(avatarURL: avatarURL) { (data, error) in
+                    guard let data = data else {
+                        return
+                    }
+                    let image = UIImage(data: data)
+                    cell.userAvatar.image = image
+                    cell.setNeedsLayout()
+                }
+            }
+        }
+        return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "showDetails", sender: nil)
+        selection = true
+        
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
+    }
+    
+    //MARK: Animation
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        UIView.animate(withDuration: 0.4) {
+            cell.transform = CGAffineTransform.identity
+        }
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        let animationHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
+            // This block will be called several times during rotation,
+            // so the tableView change more smoothly
+            self?.tableView.reloadData()
+            self?.tableView.frame = self!.view.frame
+        }
+        
+        let completionHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
+            // This block will be called when rotation will be completed
+            self?.tableView.reloadData()
+        }
+        coordinator.animate(alongsideTransition: animationHandler, completion: completionHandler)
+    }
+    
+    
+    //MARK: - Segue
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showDetails" {
+            if let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController {
+                
+                if let indexPath = self.tableView.indexPathForSelectedRow {
+                    let user = self.fetchedResultsController.object(at: indexPath)
+                    
+                    vc.dataController = dataController
+                    vc.selectedUser = user
+                }
+                
+                vc.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
+                vc.navigationItem.leftItemsSupplementBackButton = true
+                
+            }
+        }
+    }
+    
+}
+
+//MARK: - CoreData
+
+extension SearchViewController: NSFetchedResultsControllerDelegate {
     
     func setupFetchedResultsController(_ searchText: String? = nil) {
         
@@ -140,196 +302,6 @@ class SearchViewController: UITableViewController {
         }
     }
     
-}
-
-//MARK: - Search
-
-extension SearchViewController: UISearchBarDelegate {
-    
-    func setupSearchBar() {
-        searchBar.placeholder = "Type at least 3 characters to search"
-        searchBar.delegate = self
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
-        // Performing delay between searches. If uers is typing previous request is being terminated.
-
-        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload(_:)), object: searchBar)
-        perform(#selector(self.reload(_:)), with: searchBar, afterDelay: 0.75)
-    }
-    
-    @objc func reload(_ searchBar: UISearchBar) {
-        
-        // No further verification on the endpoint in APIEndpoint class as the GitHub API does not accept logins with white spaces.
-        
-        guard let txt = searchBar.text else {return}
-        let searchQuery = txt.filter{!$0.isWhitespace}
-        
-        if searchQuery.count > 2 {
-        
-            setupFetchedResultsController(searchQuery)
-            tableView.reloadData()
-            
-            if fetchedResultsController.fetchedObjects?.count == 0 {
-                _ = APIEndpoints.search(query: searchQuery) { (data, error) in
-                    
-                    DispatchQueue.main.async {
-                        for user in data {
-                            let gitHubUser = User(context: self.dataController.viewContext)
-                            gitHubUser.avatarUrl = user.avatar
-                            gitHubUser.creationDate = Date()
-                            gitHubUser.login = user.login
-                            gitHubUser.score = user.score ?? 0
-                            gitHubUser.reposUrl = user.reposUrl
-
-                    guard let avatarURL = gitHubUser.avatarUrl else {return}
-                    if let url = URL(string: avatarURL) {
-                        
-                        APIEndpoints.downloadUsersAvatar(avatarURL: url) {
-                            (data, error) in
-                            
-                            guard let data = data else {
-                                return
-                            }
-                            gitHubUser.avatar = data
-                        }
-                    }
-                        }
-                        
-                        try? self.dataController.viewContext.save()
-                        self.tableView.reloadData()
-                    }
-                }
-            }
-        }
-    }
-
-    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
-        tableView.reloadData()
-        return true
-    }
-    
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchBar.showsCancelButton = true
-    }
-    
-    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        searchBar.showsCancelButton = false
-        cleaningDatabase()
-        setupFetchedResultsController()
-        tableView.reloadData()
-
-    }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.endEditing(true)
-        dataController.viewContext.refreshAllObjects()
-        tableView.reloadData()
-    
-    }
-    
-}
-
-//MARK: - tableView
-
-extension SearchViewController {
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return fetchedResultsController.sections?.count ?? 1
-    }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
-    }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let gitHubUser = fetchedResultsController.object(at: indexPath)
-        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! CustomTableViewCell
-        
-        cell.userNickname.text = gitHubUser.login
-        cell.userAvatar.image = UIImage(named: "user-default")
-        
-        //MARK: Downloading avatar
-        if let avatar = gitHubUser.avatarUrl {
-            if let avatarURL = URL(string: avatar) {
-                
-                APIEndpoints.downloadUsersAvatar(avatarURL: avatarURL) { (data, error) in
-                    guard let data = data else {
-                        return
-                    }
-                    let image = UIImage(data: data)
-                    cell.userAvatar.image = image
-                    cell.setNeedsLayout()
-                }
-            }
-        }
-        return cell
-    }
-    
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "showDetails", sender: nil)
-        selection = true
-    
-    }
-    
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
-    }
-    
-        //MARK: Animation
-    
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        cell.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-        UIView.animate(withDuration: 0.4) {
-            cell.transform = CGAffineTransform.identity
-        }
-    }
-    
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        
-        let animationHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
-            // This block will be called several times during rotation,
-            // so the tableView change more smoothly
-            self?.tableView.reloadData()
-            self?.tableView.frame = self!.view.frame
-        }
-        
-        let completionHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
-            // This block will be called when rotation will be completed
-            self?.tableView.reloadData()
-        }
-        coordinator.animate(alongsideTransition: animationHandler, completion: completionHandler)
-    }
-
-    
-    //MARK: - Segue
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showDetails" {
-            if let vc = (segue.destination as! UINavigationController).topViewController as? DetailsViewController {
-                
-                    if let indexPath = self.tableView.indexPathForSelectedRow {
-                    let user = self.fetchedResultsController.object(at: indexPath)
-                        
-                        vc.dataController = dataController
-                        vc.selectedUser = user
-                }
-            
-                vc.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
-                vc.navigationItem.leftItemsSupplementBackButton = true
-        
-            }
-        }
-    }
-    
-}
-
-//MARK: - CoreData
-
-extension SearchViewController: NSFetchedResultsControllerDelegate {
- 
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch type {

@@ -35,6 +35,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         splitViewController.preferredDisplayMode = .allVisible
         
+      
+        splitViewController.preferredPrimaryColumnWidthFraction = 0.4
+        splitViewController.maximumPrimaryColumnWidth = splitViewController.view.bounds.size.width;
+        
         return true
     }
     
