@@ -16,7 +16,7 @@ class SearchViewController: UITableViewController {
     
     
     var selection: Bool = false
-    
+    let fixedRowSize: CGFloat = 70
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<User>!
     
@@ -213,7 +213,7 @@ extension SearchViewController {
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
+        return fixedRowSize
     }
     
     //MARK: Animation

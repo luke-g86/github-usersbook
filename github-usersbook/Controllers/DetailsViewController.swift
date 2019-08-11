@@ -25,6 +25,8 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     let sectionName = ViewsFactory.label(text: "User repositories", color: UIColor.darkGray, numberOfLines: 1, fontSize: 18)
     let detailsTableView = UITableView()
     
+    let activityIndicator = UIActivityIndicatorView(style: .gray)
+    
     
     let scrollView: UIScrollView = {
         let view = UIScrollView()
@@ -48,6 +50,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
         setupFetchedResultsController()
         scrollView.delegate = self
         
@@ -55,20 +58,20 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
     override func viewDidLayoutSubviews() {
         scrollView.delegate = self
-//        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         fetchedResultsController = nil
     }
     
-
+    
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         self.updateViewConstraints()
     }
     
     func presentData() {
-
+        
         setupFetchedResultsController()
         loadViewIfNeeded()
         self.navigationItem.title = "User details"
@@ -81,7 +84,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         
     }
     
-
+    
     func settingUI() {
         
         guard let selectedUser = selectedUser else {
@@ -102,78 +105,92 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         nicknameLabel.text = "🤓 \(selectedUser.login!)"
         scoreLabel.text = "Scoring ✅: \(String(format: "%.1f", selectedUser.score))"
         
+        
         // Getting user's repositories
         getRepoDetails(username: selectedUser.login!)
         
         // Creating his login and scoring card
         createUserCard()
         
+        
+        activityIndicatorSetup()
+        
         // Creating details view (queue dispatched, waiting for the getRepoDetails to finish network request)
         dispatchGroup.notify(queue: dispatchQueue) {
             DispatchQueue.main.async {
-                    self.createReposCard()
-                    self.detailsTableView.reloadData()
+                self.createReposCard()
+                self.detailsTableView.reloadData()
+                self.activityIndicator.stopAnimating()
+                self.activityIndicator.removeFromSuperview()
             }
         }
-
+        
     }
     
+    func activityIndicatorSetup() {
+        self.view.addSubview(activityIndicator)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        activityIndicator.centerYAnchor.constraint(equalTo: self.userCardContainerView.bottomAnchor, constant: 100).isActive = true
+        activityIndicator.startAnimating()
+    }
     
     // MARK: - Networking
     
     //MARK: Repo details download for specific userName
     
     func prepareDataBaseForFetchingNewData() {
-
-            // deleting details
-            try? fetchedResultsController.performFetch()
-            guard let details = fetchedResultsController.fetchedObjects else {return}
-     
-            
-            if details.count != 0 {
-                for detail in details {
-                    dataController.viewContext.delete(detail)
-                }
-                try? dataController.viewContext.save()
-                dataController.viewContext.refreshAllObjects()
+        
+        // deleting details
+        try? fetchedResultsController.performFetch()
+        guard let details = fetchedResultsController.fetchedObjects else {return}
+        
+        
+        if details.count != 0 {
+            for detail in details {
+                dataController.viewContext.delete(detail)
             }
+            try? dataController.viewContext.save()
+            dataController.viewContext.refreshAllObjects()
         }
+    }
     
     func getRepoDetails(username: String) {
+        
         if Reachability.isConnectedWithInternet() {
             prepareDataBaseForFetchingNewData()
-        
-        self.dispatchGroup.enter()
-        _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
-            guard let data = data else {
-                print(error?.localizedDescription ?? "unknown error")
-                return
-            }
-            self.repos = data
-            //MARK: Defining ManagedObject
-            for item in data {
-                let repositories = Details(context: self.dataController.viewContext)
-                repositories.creationDate = Date()
-                repositories.repoCreationDate = item.createdAt
-                repositories.language = item.language
-                repositories.name = item.name
-                repositories.repoDescription = item.description
-                repositories.stargazersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
-                repositories.watchersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
-                repositories.user = self.selectedUser!
-            }
-            //MARK: Saving data to CoreData
-            do {
-                try self.dataController.viewContext.save()
-                
-            } catch {
-                print("saving error: \(error.localizedDescription)")
-            }
-            self.dispatchGroup.leave()
+            
+            self.dispatchGroup.enter()
+            _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
+                guard let data = data else {
+                    print(error?.localizedDescription ?? "unknown error")
+                    return
+                }
+                self.repos = data
+                //MARK: Defining ManagedObject
+                for item in data {
+                    let repositories = Details(context: self.dataController.viewContext)
+                    repositories.creationDate = Date()
+                    repositories.repoCreationDate = item.createdAt
+                    repositories.language = item.language
+                    repositories.name = item.name
+                    repositories.repoDescription = item.description
+                    repositories.stargazersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
+                    repositories.watchersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
+                    repositories.user = self.selectedUser!
+                }
+                //MARK: Saving data to CoreData
+                do {
+                    try self.dataController.viewContext.save()
+                    
+                } catch {
+                    print("saving error: \(error.localizedDescription)")
+                }
+                self.dispatchGroup.leave()
             }
         }
     }
-
+    
     
     // MARK: Avatar download
     

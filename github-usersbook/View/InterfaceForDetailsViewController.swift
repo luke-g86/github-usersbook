@@ -112,6 +112,8 @@ extension DetailsViewController {
     
     func createReposCard() {
         
+    
+        
         try? fetchedResultsController.performFetch()
     
         // max size of the table
@@ -123,6 +125,8 @@ extension DetailsViewController {
         }()
         
         generalContainer.addSubview(reposCard)
+        
+         
         
         //MARK: Section label
         
@@ -173,6 +177,8 @@ extension DetailsViewController {
         
         scrollView.bottomAnchor.constraint(equalTo: reposCard.bottomAnchor, constant: 0).isActive = true
         scrollView.updateConstraints()
+        
+
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
