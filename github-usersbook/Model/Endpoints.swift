@@ -49,7 +49,7 @@ class APIEndpoints {
             } catch {
                 DispatchQueue.main.async {
                     completion(nil, error)
-                    print(error)
+                    print(error.localizedDescription)
                 }
             }
         }

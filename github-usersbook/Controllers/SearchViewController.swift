@@ -110,8 +110,10 @@ extension SearchViewController: UISearchBarDelegate {
             
             if fetchedResultsController.fetchedObjects?.count == 0 {
                 _ = APIEndpoints.search(query: searchQuery) { (data, error) in
-                    
                     DispatchQueue.main.async {
+                        if error != nil {
+                            self.alert("Error", error!.localizedDescription)
+                        }
                         for user in data {
                             let gitHubUser = User(context: self.dataController.viewContext)
                             gitHubUser.avatarUrl = user.avatar
