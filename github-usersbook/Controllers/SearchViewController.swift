@@ -29,7 +29,7 @@ class SearchViewController: UITableViewController {
         
         splitViewController?.delegate = self
         navigationItem.title = "GitHub users finder"
-        
+      
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -40,11 +40,22 @@ class SearchViewController: UITableViewController {
         
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+          checkInternetConnection()
+    }
     
+
+    //MARK: - Devices states
     func settingsForDevice() {
         if UIDevice.current.orientation.isLandscape || UIDevice.current.userInterfaceIdiom == .pad && !selection {
             perform(#selector(selectTableRow), with: nil, afterDelay: 1.0)
         }
+    }
+    func checkInternetConnection() {
+        if !Reachability.isConnectedWithInternet() {
+            alert("No internet connection", "It seems that you're not connected to the network. Please note, that functionality of the app will be limited.")
+        }
+        
     }
     
     
@@ -250,6 +261,17 @@ extension SearchViewController {
                 
             }
         }
+    }
+    
+    //MARK: Alert
+    
+    func alert(_ title: String, _ message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default) { (action) -> Void in
+            self.dismiss(animated: true, completion: nil)
+        }
+        alert.addAction(action)
+        self.present(alert, animated: true, completion: nil)
     }
     
 }
