@@ -193,18 +193,12 @@ extension SearchViewController {
         cell.userAvatar.image = UIImage(named: "user-default")
         
         //MARK: Downloading avatar
-        if let avatar = gitHubUser.avatarUrl {
-            if let avatarURL = URL(string: avatar) {
-                APIEndpoints.downloadUsersAvatar(avatarURL: avatarURL) { (data, error) in
-                    guard let data = data else {
-                        return
-                    }
-                    let image = UIImage(data: data)
-                    cell.userAvatar.image = image
-                    cell.setNeedsLayout()
-                }
-            }
+        if let avatar = gitHubUser.avatar {
+            cell.userAvatar.image = UIImage(data: avatar)
         }
+        
+        cell.setNeedsLayout()
+        
         return cell
     }
     
