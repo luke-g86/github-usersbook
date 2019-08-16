@@ -118,13 +118,20 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         // Creating details view (queue dispatched, waiting for the getRepoDetails to finish network request)
         dispatchGroup.notify(queue: dispatchQueue) {
             DispatchQueue.main.async {
+                
+                // slide animation
+                UIView.animate(withDuration: 0.75, delay: 0.5, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.0, options: [], animations: {
+                    self.reposCard.center = CGPoint(x: self.reposCard.center.x, y: self.reposCard.center.y-UIScreen.main.bounds.height)
+                }, completion: nil)
+                
+                
                 self.createReposCard()
                 self.detailsTableView.reloadData()
                 self.activityIndicator.stopAnimating()
                 self.activityIndicator.removeFromSuperview()
             }
         }
-        
+
     }
     
     func activityIndicatorSetup() {
