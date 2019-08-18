@@ -26,11 +26,12 @@ class SearchViewController: UITableViewController {
         setupSearchBar()
         setTableView()
         cleaningDatabase()
-        
         splitViewController?.delegate = self
         navigationItem.title = "GitHub users finder"
-      
+        
     }
+    
+    
     
     override func viewWillAppear(_ animated: Bool) {
         setupFetchedResultsController()
@@ -41,10 +42,10 @@ class SearchViewController: UITableViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-          checkInternetConnection()
+        checkInternetConnection()
     }
     
-
+    
     //MARK: - Devices states
     func settingsForDevice() {
         if UIDevice.current.orientation.isLandscape || UIDevice.current.userInterfaceIdiom == .pad && !selection {
@@ -107,71 +108,75 @@ extension SearchViewController: UISearchBarDelegate {
             
             setupFetchedResultsController(searchQuery)
             tableView.reloadData()
-            
             if fetchedResultsController.fetchedObjects?.count == 0 {
-                _ = APIEndpoints.search(query: searchQuery) { (data, error) in
-                    DispatchQueue.main.async {
-                        if error != nil {
-                            self.alert("Error", error!.localizedDescription)
-                        }
-                        for user in data {
-                            let gitHubUser = User(context: self.dataController.viewContext)
-                            gitHubUser.avatarUrl = user.avatar
-                            gitHubUser.creationDate = Date()
-                            gitHubUser.login = user.login
-                            gitHubUser.score = user.score ?? 0
-                            gitHubUser.reposUrl = user.reposUrl
-                            
-                            guard let avatarURL = gitHubUser.avatarUrl else {return}
-                            if let url = URL(string: avatarURL) {
-                                
-                                APIEndpoints.downloadUsersAvatar(avatarURL: url) {
-                                    (data, error) in
-                                    
-                                    guard let data = data else {
-                                        return
-                                    }
-                                    gitHubUser.avatar = data
-                                }
-                            }
-                        }
-                        
-                        try? self.dataController.viewContext.save()
-                        self.tableView.reloadData()
-                    }
-                }
+                _ = APIEndpoints.search(query: searchQuery, completion: completionHandlerForNetworkRequest(data:error:))
             }
         }
     }
     
-    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
-        tableView.reloadData()
-        return true
+    
+    func completionHandlerForNetworkRequest(data: [Users]?, error: Error?) {
+        DispatchQueue.main.async {
+            if error != nil {
+                self.alert("Error", error!.localizedDescription)
+            }
+            guard let data = data else { return }
+            for user in data {
+                let gitHubUser = User(context: self.dataController.viewContext)
+                gitHubUser.avatarUrl = user.avatar
+                gitHubUser.creationDate = Date()
+                gitHubUser.login = user.login
+                gitHubUser.score = user.score ?? 0
+                gitHubUser.reposUrl = user.reposUrl
+                
+                guard let avatarURL = gitHubUser.avatarUrl else {return}
+                if let url = URL(string: avatarURL) {
+                    
+                    APIEndpoints.downloadUsersAvatar(avatarURL: url) {
+                        (data, error) in
+                        
+                        guard let data = data else {
+                            return
+                        }
+                        gitHubUser.avatar = data
+                    }
+                }
+            }
+            
+            try? self.dataController.viewContext.save()
+            self.tableView.reloadData()
+        }
     }
     
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchBar.showsCancelButton = true
-    }
+
+func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
+    tableView.reloadData()
+    return true
+}
+
+func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+    searchBar.showsCancelButton = true
+}
+
+func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+    searchBar.showsCancelButton = false
+    cleaningDatabase()
+    setupFetchedResultsController()
+    tableView.reloadData()
     
-    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        searchBar.showsCancelButton = false
-        cleaningDatabase()
-        setupFetchedResultsController()
-        tableView.reloadData()
-        
-    }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.endEditing(true)
-        searchBar.text = nil
-        cleaningDatabase()
-        setupFetchedResultsController()
-        tableView.reloadData()
-    }
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        resignFirstResponder()
-    }
-    
+}
+
+func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+    searchBar.endEditing(true)
+    searchBar.text = nil
+    cleaningDatabase()
+    setupFetchedResultsController()
+    tableView.reloadData()
+}
+func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+    resignFirstResponder()
+}
+
 }
 
 //MARK: - tableView
