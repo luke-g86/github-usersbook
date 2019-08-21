@@ -12,7 +12,10 @@ import UIKit
 class DetailView: UIView {
     
     var selectedUser: User?
+
+    
     var detailsViewController: DetailsViewController!
+
     
     
     let generalContainer: UIView = {
@@ -41,12 +44,23 @@ class DetailView: UIView {
     let reposCard = ViewsFactory.view(forBackground: #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0), forAutoresizingMaskIntoConstraints: false)
     let reposLabel = ViewsFactory.label(text: "Repositories", color: UIColor.darkGray, numberOfLines: 1, fontSize: 24)
     let sectionName = ViewsFactory.label(text: "User repositories", color: UIColor.darkGray, numberOfLines: 1, fontSize: 18)
-    let detailsTableView = UITableView()
+    let detailsTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.frame = CGRect.zero
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "reposCell")
+        return tableView
+    }()
     
     
-    init(selectedUser: User, frame: CGRect) {
+    init(selectedUser:User, frame: CGRect, detailsViewController: DetailsViewController) {
         super.init(frame: frame)
         self.selectedUser = selectedUser
+        self.detailsViewController = detailsViewController
+        
+        let tableViewDelegates = TableViewDelegates(detailsViewController: detailsViewController)
+        detailsTableView.delegate = tableViewDelegates
+        detailsTableView.dataSource = tableViewDelegates
+        detailsTableView.reloadData()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -202,18 +216,17 @@ class DetailView: UIView {
         reposCard.widthAnchor.constraint(equalTo: userCardContainerView.widthAnchor).isActive = true
         reposCard.heightAnchor.constraint(equalToConstant: CGFloat(size) + 10).isActive = true
         
+        
+        
         reposCard.setNeedsLayout()
         reposCard.layoutIfNeeded()
         
         
-        detailsTableView.frame = CGRect.zero
-        detailsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "reposCell")
-        detailsTableView.delegate = detailsViewController
-        detailsTableView.dataSource = detailsViewController
         detailsTableView.clipsToBounds = true
         detailsTableView.translatesAutoresizingMaskIntoConstraints = false
+    
         
-        print(detailsTableView)
+        
         detailsTableView.reloadData()
         
         //MARK: - Detail view constrains

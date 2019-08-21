@@ -38,6 +38,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     var detailView: DetailView! { return self.view as? DetailView }
     
     
+    
     var fetchedResultsController: NSFetchedResultsController<Details>!
     var dataController: DataController!
     let dispatchGroup = DispatchGroup()
@@ -58,12 +59,11 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         setupFetchedResultsController()
-        
-        
+
     }
     
     override func viewDidLayoutSubviews() {
-        
+
         
     }
     
@@ -71,7 +71,9 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         fetchedResultsController = nil
     }
     
-    
+    deinit {
+        print("Details View Controller deallocated")
+    }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         self.updateViewConstraints()
     }
@@ -104,7 +106,8 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
     override func loadView() {
         guard let selectedUser = selectedUser else {return}
-        view = DetailView(selectedUser: selectedUser, frame: UIScreen.main.bounds)
+        view = DetailView(selectedUser: selectedUser, frame: UIScreen.main.bounds, detailsViewController: self)
+   
     }
     
     func settingUI() {
@@ -129,8 +132,6 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
                 UIView.animate(withDuration: 0.75, delay: 0.5, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.0, options: [], animations: {
                     self.detailView.reposCard.center = CGPoint(x: self.detailView.reposCard.center.x, y: self.detailView.reposCard.center.y-UIScreen.main.bounds.height)
                 }, completion: nil)
-                
-//                try? self.fetchedResultsController.fetchRequest
                 self.detailView.createReposCard(for: self.repos)
                 self.detailView.detailsTableView.reloadData()
                 self.activityIndicator.stopAnimating()
@@ -249,7 +250,15 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        scrollView.contentOffset.x = 0
+    }
+    
 }
+
+
+//MARK: - TableView delegates
+
 
 
 extension DetailsViewController: NSFetchedResultsControllerDelegate {
