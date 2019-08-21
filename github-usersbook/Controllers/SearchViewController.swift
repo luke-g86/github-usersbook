@@ -141,6 +141,13 @@ extension SearchViewController: UISearchBarDelegate {
                         gitHubUser.avatar = data
                     }
                 }
+                APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userDetails(user.login!).url, response: UserDetails.self, completion: { (userData, error) in
+                    if error != nil {
+                        print(error?.localizedDescription)
+                    }
+                   print(userData?.bio)
+                    print(userData?.name)
+                })
             }
             
             try? self.dataController.viewContext.save()

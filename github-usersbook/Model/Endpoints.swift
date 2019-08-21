@@ -15,11 +15,13 @@ class APIEndpoints {
         
         case userSearch (String)
         case userRepos (String)
+        case userDetails (String)
         
         var stringUrlBody: String {
             switch self {
             case .userSearch (let query): return baseURL.base + "/search/users?q=\(query)"
             case .userRepos (let userName): return baseURL.base + "/users/\(userName)/repos"
+            case .userDetails (let userName): return baseURL.base + "/\(userName)"
             }
         }
         var url: URL {
