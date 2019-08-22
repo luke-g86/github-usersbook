@@ -13,6 +13,7 @@ public class TableViewDelegates: NSObject, UITableViewDataSource,UITableViewDele
     private let detailsViewController: DetailsViewController
     
     init(detailsViewController: DetailsViewController){
+        print("tableView delegate init")
         self.detailsViewController = detailsViewController
         try? detailsViewController.fetchedResultsController.fetchRequest
         

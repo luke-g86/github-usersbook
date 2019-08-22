@@ -13,26 +13,8 @@ import CoreData
 
 class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
-    //MARK: - UI View objects
-    
-//    let generalContainer = ViewsFactory.view(forBackground: UIColor.white, forAutoresizingMaskIntoConstraints: false)
-//    var userAvatar = ViewsFactory.imageView(image: nil, forAutoresizingMaskIntoConstraints: false)
-//    var nicknameLabel = ViewsFactory.label(text: "userNickname", color: UIColor.black, numberOfLines: 1, fontSize: 36)
-//    let userCardContainerView = ViewsFactory.view(forBackground: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), forAutoresizingMaskIntoConstraints: false)
-//    let scoreLabel = ViewsFactory.label(text: "userScore", color: UIColor.black, numberOfLines: 1, fontSize: 30)
-//    let reposCard = ViewsFactory.view(forBackground: #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0), forAutoresizingMaskIntoConstraints: false)
-//    let reposLabel = ViewsFactory.label(text: "Repositories", color: UIColor.darkGray, numberOfLines: 1, fontSize: 24)
-//    let sectionName = ViewsFactory.label(text: "User repositories", color: UIColor.darkGray, numberOfLines: 1, fontSize: 18)
-//    let detailsTableView = UITableView()
     
     let activityIndicator = UIActivityIndicatorView(style: .gray)
-    
-    
-//    let scrollView: UIScrollView = {
-//        let view = UIScrollView()
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        return view
-//    }()
     
     
     var detailView: DetailView! { return self.view as? DetailView }
@@ -49,9 +31,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
             presentData()
         }
     }
-    
-    
-    
+
     
     //MARK: - View states
     
@@ -62,10 +42,6 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
 
     }
     
-    override func viewDidLayoutSubviews() {
-
-        
-    }
     
     override func viewWillDisappear(_ animated: Bool) {
         fetchedResultsController = nil
@@ -132,6 +108,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
                 UIView.animate(withDuration: 0.75, delay: 0.5, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.0, options: [], animations: {
                     self.detailView.reposCard.center = CGPoint(x: self.detailView.reposCard.center.x, y: self.detailView.reposCard.center.y-UIScreen.main.bounds.height)
                 }, completion: nil)
+                
                 self.detailView.createReposCard(for: self.repos)
                 self.detailView.detailsTableView.reloadData()
                 self.activityIndicator.stopAnimating()
@@ -181,6 +158,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
                     return
                 }
                 self.repos = data
+                print("fetching data")
                 //MARK: Defining ManagedObject
                 for item in data {
                     let repositories = Details(context: self.dataController.viewContext)
@@ -200,6 +178,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
                 } catch {
                     print("saving error: \(error.localizedDescription)")
                 }
+                print("data fetched")
                 self.dispatchGroup.leave()
             }
         }
@@ -265,6 +244,7 @@ extension DetailsViewController: NSFetchedResultsControllerDelegate {
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
+        print("changes to be implemented in a tableView")
         switch type {
         case .insert: detailView.detailsTableView.insertRows(at: [newIndexPath!], with: .fade)
         case .delete: detailView.detailsTableView.deleteRows(at: [indexPath!], with: .fade)
