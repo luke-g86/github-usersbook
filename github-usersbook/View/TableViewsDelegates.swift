@@ -13,13 +13,14 @@ public class TableViewDelegates: NSObject, UITableViewDataSource,UITableViewDele
     private let detailsViewController: DetailsViewController
     
     init(detailsViewController: DetailsViewController){
-        print("tableView delegate init")
         self.detailsViewController = detailsViewController
-        try? detailsViewController.fetchedResultsController.fetchRequest
+        
+        _ = detailsViewController.fetchedResultsController.fetchRequest
         
         super.init()
     }
     
+
     public func numberOfSections(in tableView: UITableView) -> Int {
         return detailsViewController.fetchedResultsController.sections?.count ?? 1
         
@@ -37,7 +38,7 @@ public class TableViewDelegates: NSObject, UITableViewDataSource,UITableViewDele
         
         var cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as! UITableViewCell
         cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: reuseIdentifier)
-        cell.textLabel?.text = "test"
+        cell.textLabel?.text = details.name
         cell.textLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: 18)
         cell.detailTextLabel?.text = "🤖 \(String(describing: details.language ?? "none")) ⭐️ Number of stars: \(String(describing: details.stargazersCount))"
         cell.detailTextLabel?.font = UIFont(name: "HelveticaNeue-Light", size: 16)

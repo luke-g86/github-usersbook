@@ -12,7 +12,7 @@ import UIKit
 class DetailView: UIView {
     
     var selectedUser: User?
-
+    
     
     var detailsViewController: DetailsViewController!
     var tableViewDelegates: TableViewDelegates?
@@ -58,7 +58,7 @@ class DetailView: UIView {
         self.detailsViewController = detailsViewController
         print("detail view init")
         tableViewDelegates = TableViewDelegates(detailsViewController: detailsViewController)
-
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -89,8 +89,6 @@ class DetailView: UIView {
         generalContainer.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
         generalContainer.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
         generalContainer.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        generalContainer.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        generalContainer.heightAnchor.constraint(equalTo: scrollView.heightAnchor).isActive = true
         
         // AVATAR
         
@@ -124,7 +122,6 @@ class DetailView: UIView {
         generalContainer.bringSubviewToFront(nicknameLabel)
         
         
-        
         //MARK: Constraints - UserCards
         
         userCardContainerView.topAnchor.constraint(equalTo: generalContainer.topAnchor, constant: 36 + avatarHeight/2).isActive = true
@@ -150,7 +147,7 @@ class DetailView: UIView {
         
         scoreLabel.topAnchor.constraint(equalTo: nicknameLabel.bottomAnchor, constant: 24).isActive = true
         scoreLabel.centerXAnchor.constraint(equalTo: userCardContainerView.centerXAnchor, constant: 0).isActive = true
-    
+        
         userCardData()
     }
     
@@ -161,14 +158,14 @@ class DetailView: UIView {
         
         selectedUser.displayed = true
         
-        // setting users avatar if its already downloaded. If not, there's an attempt to download it.
-        
-        if let image = selectedUser.avatar {
-            userAvatar.image = UIImage(data: image)
-        } else {
-            //    guard let avatarUrl = selectedUser.avatarUrl else {return}
-            //    downloadAvatar(avatar: avatarUrl)
-        }
+//        // setting users avatar if its already downloaded. If not, there's an attempt to download it.
+//        
+//        if let image = selectedUser.avatar {
+//            userAvatar.image = UIImage(data: image)
+//        } else {
+//            //    guard let avatarUrl = selectedUser.avatarUrl else {return}
+//            //    downloadAvatar(avatar: avatarUrl)
+//        }
         
         nicknameLabel.text = "🤓 \(selectedUser.login!)"
         scoreLabel.text = "Scoring ✅: \(String(format: "%.1f", selectedUser.score))"
@@ -177,11 +174,6 @@ class DetailView: UIView {
     
     func createReposCard(for repos: [UsersRepositories]) {
         
-    
-//        try? fetchedResultsController.performFetch()
-        
-        // max size of the table
-        
         let size: Int = {
             if repos.count == 0 {
                 return 200
@@ -189,7 +181,7 @@ class DetailView: UIView {
             return repos.count * 70
         }()
         
-       generalContainer.addSubview(reposCard)
+        generalContainer.addSubview(reposCard)
         
         
         
@@ -235,18 +227,19 @@ class DetailView: UIView {
         reposCard.bringSubviewToFront(detailsTableView)
         
         
+        
         //MARK: Constraints - update view size for detailsTableView and reposCard
         detailsTableView.topAnchor.constraint(equalTo: reposCard.topAnchor, constant:8).isActive = true
         detailsTableView.leadingAnchor.constraint(equalTo: reposCard.leadingAnchor, constant: 4).isActive = true
         detailsTableView.trailingAnchor.constraint(equalTo: reposCard.trailingAnchor, constant: -4).isActive = true
-        detailsTableView.heightAnchor.constraint(equalToConstant: CGFloat(size)).isActive = true
+        detailsTableView.bottomAnchor.constraint(equalTo: reposCard.bottomAnchor, constant: -4).isActive = true
+
         
-        
-//                scrollView.bottomAnchor.constraint(equalTo: reposCard.bottomAnchor, constant: 0).isActive = true
-                scrollView.updateConstraints()
+        scrollView.bottomAnchor.constraint(equalTo: reposCard.bottomAnchor, constant: 0).isActive = true
+        scrollView.updateConstraints()
         
         
     }
-
+    
     
 }
