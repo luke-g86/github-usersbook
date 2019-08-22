@@ -21,7 +21,6 @@ class DetailView: UIView {
     let generalContainer: UIView = {
         let view = ViewsFactory.view(forBackground: UIColor.white, forAutoresizingMaskIntoConstraints: false)
         view.layer.cornerRadius = 0
-        view.backgroundColor = UIColor.blue
         return view
     }()
     
@@ -37,7 +36,7 @@ class DetailView: UIView {
     let scrollView: UIScrollView = {
         let view = UIScrollView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor.red
+        view.backgroundColor = UIColor.white
         return view
     }()
     
@@ -157,15 +156,6 @@ class DetailView: UIView {
         }
         
         selectedUser.displayed = true
-        
-//        // setting users avatar if its already downloaded. If not, there's an attempt to download it.
-//        
-//        if let image = selectedUser.avatar {
-//            userAvatar.image = UIImage(data: image)
-//        } else {
-//            //    guard let avatarUrl = selectedUser.avatarUrl else {return}
-//            //    downloadAvatar(avatar: avatarUrl)
-//        }
         
         nicknameLabel.text = "🤓 \(selectedUser.login!)"
         scoreLabel.text = "Scoring ✅: \(String(format: "%.1f", selectedUser.score))"
