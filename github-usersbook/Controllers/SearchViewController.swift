@@ -141,13 +141,7 @@ extension SearchViewController: UISearchBarDelegate {
                         gitHubUser.avatar = data
                     }
                 }
-                APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userDetails(user.login!).url, response: UserDetails.self, completion: { (userData, error) in
-                    if error != nil {
-                        print(error?.localizedDescription)
-                    }
-                   print(userData?.bio)
-                    print(userData?.name)
-                })
+               
             }
             
             try? self.dataController.viewContext.save()
@@ -326,7 +320,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         guard let data = fetchedResultsController.fetchedObjects else { return }
         for object in data {
             // deletion if object has no details, creation date or it is older than full 7 days
-            if (object.details?.count == 0) && (object.creationDate ?? expirationDate <= expirationDate) || !object.displayed {
+            if (object.details?.count == 0) || (object.creationDate ?? expirationDate <= expirationDate) {
                 dataController.viewContext.delete(object)
             }
         }
