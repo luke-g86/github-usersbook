@@ -109,7 +109,7 @@ extension SearchViewController: UISearchBarDelegate {
             setupFetchedResultsController(searchQuery)
             tableView.reloadData()
             if fetchedResultsController.fetchedObjects?.count == 0 {
-                _ = APIEndpoints.search(query: searchQuery, completion: completionHandlerForNetworkRequest(data:error:))
+                _ = APIEndpoints.search(query: searchQuery, page: 1, completion: completionHandlerForNetworkRequest(data:error:))
             }
         }
     }

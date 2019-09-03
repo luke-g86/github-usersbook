@@ -13,13 +13,13 @@ class APIEndpoints {
     enum baseURL {
         static let base = "https://api.github.com"
         
-        case userSearch (String)
+        case userSearch (String, Int)
         case userRepos (String)
         case userDetails (String)
         
         var stringUrlBody: String {
             switch self {
-            case .userSearch (let query): return baseURL.base + "/search/users?q=\(query)"
+            case .userSearch (let query, let page): return baseURL.base + "/search/users?q=\(query)&page=\(page)"
             case .userRepos (let userName): return baseURL.base + "/users/\(userName)/repos"
             case .userDetails (let userName): return baseURL.base + "/\(userName)"
             }
@@ -77,8 +77,8 @@ class APIEndpoints {
     
     // Network call for searchbar
     
-    class func search(query: String, completion: @escaping ([Users], Error?) -> Void) -> URLSessionTask {
-        let task = getDataFromGithub(url: APIEndpoints.baseURL.userSearch(query).url, response: UsersSearch.self) { (response, error) in
+    class func search(query: String, page: Int, completion: @escaping ([Users], Error?) -> Void) -> URLSessionTask {
+        let task = getDataFromGithub(url: APIEndpoints.baseURL.userSearch(query, page).url, response: UsersSearch.self) { (response, error) in
             guard let response = response else {
                 completion([], error)
                 return
