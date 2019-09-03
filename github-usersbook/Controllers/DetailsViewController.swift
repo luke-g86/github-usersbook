@@ -92,7 +92,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         
         
         // Getting user's repositories
-        getRepoDetails(username: selectedUser.login!)
+//        getRepoDetails(username: selectedUser.login!)
         
         // Creating his login and scoring card
         detailView.createUserCard()
@@ -146,43 +146,43 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    func getRepoDetails(username: String) {
-        
-        if Reachability.isConnectedWithInternet() {
-            prepareDataBaseForFetchingNewData()
-            
-            self.dispatchGroup.enter()
-            _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
-                guard let data = data else {
-                    print(error?.localizedDescription ?? "unknown error")
-                    return
-                }
-                self.repos = data
-                print("fetching data")
-                //MARK: Defining ManagedObject
-                for item in data {
-                    let repositories = Details(context: self.dataController.viewContext)
-                    repositories.creationDate = Date()
-                    repositories.repoCreationDate = item.createdAt
-                    repositories.language = item.language
-                    repositories.name = item.name
-                    repositories.repoDescription = item.description
-                    repositories.stargazersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
-                    repositories.watchersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
-                    repositories.user = self.selectedUser!
-                }
-                //MARK: Saving data to CoreData
-                do {
-                    try self.dataController.viewContext.save()
-                    
-                } catch {
-                    print("saving error: \(error.localizedDescription)")
-                }
-                print("data fetched")
-                self.dispatchGroup.leave()
-            }
-        }
-    }
+//    func getRepoDetails(username: String) {
+//
+//        if Reachability.isConnectedWithInternet() {
+//            prepareDataBaseForFetchingNewData()
+//
+//            self.dispatchGroup.enter()
+//            _ = APIEndpoints.getDataFromGithub(url: APIEndpoints.baseURL.userRepos(username).url, response: [UsersRepositories].self) { (data, error) in
+//                guard let data = data else {
+//                    print(error?.localizedDescription ?? "unknown error")
+//                    return
+//                }
+//                self.repos = data
+//                print("fetching data")
+//                //MARK: Defining ManagedObject
+//                for item in data {
+//                    let repositories = Details(context: self.dataController.viewContext)
+//                    repositories.creationDate = Date()
+//                    repositories.repoCreationDate = item.createdAt
+//                    repositories.language = item.language
+//                    repositories.name = item.name
+//                    repositories.repoDescription = item.description
+//                    repositories.stargazersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
+//                    repositories.watchersCount = Int32("\(String(describing: item.watchersCount!))") ?? 0
+//                    repositories.user = self.selectedUser!
+//                }
+//                //MARK: Saving data to CoreData
+//                do {
+//                    try self.dataController.viewContext.save()
+//
+//                } catch {
+//                    print("saving error: \(error.localizedDescription)")
+//                }
+//                print("data fetched")
+//                self.dispatchGroup.leave()
+//            }
+//        }
+//    }
     
     
     // MARK: Avatar download

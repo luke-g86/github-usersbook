@@ -18,6 +18,9 @@
 		04F4C0AC22ED92080027ECF5 /* UsersRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */; };
 		A3AC22902309F46900AF6840 /* UserDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3AC228F2309F46900AF6840 /* UserDetails.swift */; };
 		A3CAC2BB231E532300A0A347 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CAC2BA231E532300A0A347 /* SearchViewModel.swift */; };
+		A3CAC2BD231E80BA00A0A347 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CAC2BC231E80B900A0A347 /* Result.swift */; };
+		A3CAC2BF231E819E00A0A347 /* HTTPURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CAC2BE231E819E00A0A347 /* HTTPURLResponse.swift */; };
+		A3CAC2C1231E83F700A0A347 /* DataFetchErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CAC2C0231E83F700A0A347 /* DataFetchErrors.swift */; };
 		A3E51FB4230C92B200DA8564 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E51FB3230C92B200DA8564 /* DetailView.swift */; };
 		A3E51FB8230D9DD000DA8564 /* TableViewsDelegates.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E51FB7230D9DD000DA8564 /* TableViewsDelegates.swift */; };
 		A3E5733822F890D600B374EE /* ViewsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E5733722F890D600B374EE /* ViewsFactory.swift */; };
@@ -42,6 +45,9 @@
 		04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersRepositories.swift; sourceTree = "<group>"; };
 		A3AC228F2309F46900AF6840 /* UserDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetails.swift; sourceTree = "<group>"; };
 		A3CAC2BA231E532300A0A347 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		A3CAC2BC231E80B900A0A347 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
+		A3CAC2BE231E819E00A0A347 /* HTTPURLResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPURLResponse.swift; sourceTree = "<group>"; };
+		A3CAC2C0231E83F700A0A347 /* DataFetchErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFetchErrors.swift; sourceTree = "<group>"; };
 		A3E51FB3230C92B200DA8564 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
 		A3E51FB7230D9DD000DA8564 /* TableViewsDelegates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewsDelegates.swift; sourceTree = "<group>"; };
 		A3E5733722F890D600B374EE /* ViewsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewsFactory.swift; sourceTree = "<group>"; };
@@ -100,9 +106,12 @@
 			children = (
 				0437CCC522EC4E6000BC65B2 /* Endpoints.swift */,
 				C1027E0222F3D28D000A5B94 /* User+Extention.swift */,
+				A3CAC2BE231E819E00A0A347 /* HTTPURLResponse.swift */,
 				C1027E0422F3D4F9000A5B94 /* github-userbook.xcdatamodeld */,
+				A3CAC2C0231E83F700A0A347 /* DataFetchErrors.swift */,
 				0437CCCB22EC521200BC65B2 /* UsersSearch.swift */,
 				A3AC228F2309F46900AF6840 /* UserDetails.swift */,
+				A3CAC2BC231E80B900A0A347 /* Result.swift */,
 				04F4C0AB22ED92080027ECF5 /* UsersRepositories.swift */,
 				0437CCD022EC9F7000BC65B2 /* DataController.swift */,
 			);
@@ -223,7 +232,10 @@
 				0437CCB622EC23CA00BC65B2 /* SearchViewController.swift in Sources */,
 				0437CCC622EC4E6000BC65B2 /* Endpoints.swift in Sources */,
 				A3AC22902309F46900AF6840 /* UserDetails.swift in Sources */,
+				A3CAC2BF231E819E00A0A347 /* HTTPURLResponse.swift in Sources */,
+				A3CAC2BD231E80BA00A0A347 /* Result.swift in Sources */,
 				C1027E0622F3D4F9000A5B94 /* github-userbook.xcdatamodeld in Sources */,
+				A3CAC2C1231E83F700A0A347 /* DataFetchErrors.swift in Sources */,
 				0437CCB422EC23CA00BC65B2 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

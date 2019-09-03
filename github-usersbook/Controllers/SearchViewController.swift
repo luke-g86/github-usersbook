@@ -19,6 +19,7 @@ class SearchViewController: UITableViewController {
     let fixedRowSize: CGFloat = 70
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<User>!
+    var searchViewModel: SearchViewModel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +30,10 @@ class SearchViewController: UITableViewController {
         splitViewController?.delegate = self
         navigationItem.title = "GitHub users finder"
         
+        
+        searchViewModel = SearchViewModel(searchingUser: "luke-g86", delegate: self)
+        
+        searchViewModel.fetchSearchedUsers()
     }
     
     
@@ -89,30 +94,30 @@ extension SearchViewController: UISearchBarDelegate {
         searchBar.delegate = self
     }
     
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
-        // Performing delay between searches. If uers is typing previous request is being terminated.
-        
-        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload(_:)), object: searchBar)
-        perform(#selector(self.reload(_:)), with: searchBar, afterDelay: 0.75)
-    }
-    
-    @objc func reload(_ searchBar: UISearchBar) {
-        
-        // No further verification on the endpoint in APIEndpoint class as the GitHub API does not accept logins with white spaces.
-        
-        guard let txt = searchBar.text else {return}
-        let searchQuery = txt.filter{!$0.isWhitespace}
-        
-        if searchQuery.count > 2 {
-            
-            setupFetchedResultsController(searchQuery)
-            tableView.reloadData()
-            if fetchedResultsController.fetchedObjects?.count == 0 {
-                _ = APIEndpoints.search(query: searchQuery, page: 1, completion: completionHandlerForNetworkRequest(data:error:))
-            }
-        }
-    }
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//
+//        // Performing delay between searches. If uers is typing previous request is being terminated.
+//
+//        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload(_:)), object: searchBar)
+//        perform(#selector(self.reload(_:)), with: searchBar, afterDelay: 0.75)
+//    }
+//
+//    @objc func reload(_ searchBar: UISearchBar) {
+//
+//        // No further verification on the endpoint in APIEndpoint class as the GitHub API does not accept logins with white spaces.
+//
+//        guard let txt = searchBar.text else {return}
+//        let searchQuery = txt.filter{!$0.isWhitespace}
+//
+//        if searchQuery.count > 2 {
+//
+//            setupFetchedResultsController(searchQuery)
+//            tableView.reloadData()
+//            if fetchedResultsController.fetchedObjects?.count == 0 {
+//                _ = APIEndpoints.search(query: searchQuery, page: 1, completion: completionHandlerForNetworkRequest(data:error:))
+//            }
+//        }
+//    }
     
     
     func completionHandlerForNetworkRequest(data: [Users]?, error: Error?) {
@@ -202,8 +207,6 @@ extension SearchViewController {
         if let avatar = gitHubUser.avatar {
             cell.userAvatar.image = UIImage(data: avatar)
         }
-        
-        cell.setNeedsLayout()
         
         return cell
     }
@@ -367,6 +370,18 @@ extension SearchViewController: UISplitViewControllerDelegate {
     func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
         return true
     }
+}
+
+extension SearchViewController: SearchViewModelDelegate {
+    func fetchSucceeded() {
+
+    }
+    
+    func fetchFailed(error reason: String) {
+        
+    }
+    
+    
 }
 
 

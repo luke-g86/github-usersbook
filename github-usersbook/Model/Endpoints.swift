@@ -33,29 +33,25 @@ class APIEndpoints {
     
     // Generic structure of the network request
         
-    class func getDataFromGithub<T: Decodable>(url: URL, response: T.Type, completion: @escaping (T?, Error?) -> Void) -> URLSessionTask {
+    class func getDataFromGithub<T: Decodable>(url: URL, response: T.Type, completion: @escaping (Result<T, DataFetchErrors>) -> Void) -> URLSessionTask {
         
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    completion(nil, error)
-                }
+        let task = URLSession.shared.dataTask(with: url, completionHandler: { data, response, error in
+            
+            guard let response = response as? HTTPURLResponse, response.connectionSuccessful, let data = data else {
+                completion(Result.failure(.network))
                 return
             }
             let decoder = JSONDecoder()
             do {
                 let requestObject = try decoder.decode(T.self, from: data)
-                DispatchQueue.main.async {
-                    completion(requestObject, nil)
-                }
+                completion(Result.success(requestObject))
             } catch {
-                DispatchQueue.main.async {
-                    completion(nil, error)
+                    completion(Result.failure(.decoding))
                     print(error.localizedDescription)
-                }
             }
-        }
-        task.resume()
+        })
+            task.resume()
+
         return task
     }
     
@@ -77,14 +73,15 @@ class APIEndpoints {
     
     // Network call for searchbar
     
-    class func search(query: String, page: Int, completion: @escaping ([Users], Error?) -> Void) -> URLSessionTask {
-        let task = getDataFromGithub(url: APIEndpoints.baseURL.userSearch(query, page).url, response: UsersSearch.self) { (response, error) in
-            guard let response = response else {
-                completion([], error)
-                return
-            }
-            completion(response.items, nil)
+    class func search(query: String, page: Int, completion: @escaping (Result<UsersSearch, DataFetchErrors>) -> Void) -> URLSessionTask {
+ 
+    
+        
+        let task = getDataFromGithub(url: APIEndpoints.baseURL.userSearch(query, page).url, response: UsersSearch.self) { (response) in
+           completion(response)
         }
+     task.resume()
+        
         return task
     }
 }

@@ -8,11 +8,43 @@
 
 import Foundation
 
+
+protocol SearchViewModelDelegate: class {
+    func fetchSucceeded()
+    func fetchFailed(error reason: String)
+}
+
 class SearchViewModel {
+    
+    private weak var delegate: SearchViewModelDelegate?
     
     private var currentPage = 1
     private var totalEntries = 0
+    var searchingUser: String
     
- 
     
+
+    
+    init(searchingUser:String, delegate: SearchViewModelDelegate) {
+        self.delegate = delegate
+        self.searchingUser = searchingUser
+    }
+    
+    func fetchSearchedUsers() {
+        
+        APIEndpoints.search(query: searchingUser, page: 1) { result in
+            switch result {
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    print(error.localizedDescription)
+                }
+                
+            case .success(let response):
+                DispatchQueue.main.async {
+                    print(response.items)
+                }
+        }
+        
+        }
+    }
 }
