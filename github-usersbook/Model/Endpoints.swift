@@ -32,7 +32,7 @@ class APIEndpoints {
     //MARK: - Main network connection
     
     // Generic structure of the network request
-        
+    
     class func getDataFromGithub<T: Decodable>(url: URL, response: T.Type, completion: @escaping (Result<T, DataFetchErrors>) -> Void) -> URLSessionTask {
         
         let task = URLSession.shared.dataTask(with: url, completionHandler: { data, response, error in
@@ -46,12 +46,12 @@ class APIEndpoints {
                 let requestObject = try decoder.decode(T.self, from: data)
                 completion(Result.success(requestObject))
             } catch {
-                    completion(Result.failure(.decoding))
-                    print(error.localizedDescription)
+                completion(Result.failure(.decoding))
+                print(error.localizedDescription)
             }
         })
-            task.resume()
-
+        task.resume()
+        
         return task
     }
     
@@ -74,13 +74,11 @@ class APIEndpoints {
     // Network call for searchbar
     
     class func search(query: String, page: Int, completion: @escaping (Result<UsersSearch, DataFetchErrors>) -> Void) -> URLSessionTask {
- 
-    
         
         let task = getDataFromGithub(url: APIEndpoints.baseURL.userSearch(query, page).url, response: UsersSearch.self) { (response) in
-           completion(response)
+            completion(response)
         }
-     task.resume()
+        task.resume()
         
         return task
     }

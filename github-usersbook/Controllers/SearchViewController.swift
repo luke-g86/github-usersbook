@@ -94,59 +94,65 @@ extension SearchViewController: UISearchBarDelegate {
         searchBar.delegate = self
     }
     
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//
-//        // Performing delay between searches. If uers is typing previous request is being terminated.
-//
-//        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload(_:)), object: searchBar)
-//        perform(#selector(self.reload(_:)), with: searchBar, afterDelay: 0.75)
-//    }
-//
-//    @objc func reload(_ searchBar: UISearchBar) {
-//
-//        // No further verification on the endpoint in APIEndpoint class as the GitHub API does not accept logins with white spaces.
-//
-//        guard let txt = searchBar.text else {return}
-//        let searchQuery = txt.filter{!$0.isWhitespace}
-//
-//        if searchQuery.count > 2 {
-//
-//            setupFetchedResultsController(searchQuery)
-//            tableView.reloadData()
-//            if fetchedResultsController.fetchedObjects?.count == 0 {
-//                _ = APIEndpoints.search(query: searchQuery, page: 1, completion: completionHandlerForNetworkRequest(data:error:))
-//            }
-//        }
-//    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        // Performing delay between searches. If uers is typing previous request is being terminated.
+        
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload(_:)), object: searchBar)
+        perform(#selector(self.reload(_:)), with: searchBar, afterDelay: 0.75)
+    }
     
-    
-    func completionHandlerForNetworkRequest(data: [Users]?, error: Error?) {
-        DispatchQueue.main.async {
-            if error != nil {
-                self.alert("Error", error!.localizedDescription)
-            }
-            guard let data = data else { return }
-            for user in data {
-                let gitHubUser = User(context: self.dataController.viewContext)
-                gitHubUser.avatarUrl = user.avatar
-                gitHubUser.creationDate = Date()
-                gitHubUser.login = user.login
-                gitHubUser.score = user.score ?? 0
-                gitHubUser.reposUrl = user.reposUrl
+    @objc func reload(_ searchBar: UISearchBar) {
+        
+        // No further verification on the endpoint in APIEndpoint class as the GitHub API does not accept logins with white spaces.
+        
+        guard let txt = searchBar.text else {return}
+        let searchQuery = txt.filter{!$0.isWhitespace}
+        
+        if searchQuery.count > 2 {
+            
+            setupFetchedResultsController(searchQuery)
+            tableView.reloadData()
+            if fetchedResultsController.fetchedObjects?.count == 0 {
                 
-                guard let avatarURL = gitHubUser.avatarUrl else {return}
-                if let url = URL(string: avatarURL) {
+             _ = APIEndpoints.search(query: searchQuery, page: 1, completion: completionHandlerForNetworkRequest(_:))
+            
+            }
+        }  
+    }
+    
+    
+    func completionHandlerForNetworkRequest(_ result: Result<UsersSearch, DataFetchErrors>) {
+        DispatchQueue.main.async {
+            
+            switch result {
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .success(let usersSearch):
+                let data = usersSearch.items
+                
+                for user in data {
+                    let gitHubUser = User(context: self.dataController.viewContext)
+                    gitHubUser.avatarUrl = user.avatar
+                    gitHubUser.creationDate = Date()
+                    gitHubUser.login = user.login
+                    gitHubUser.score = user.score ?? 0
+                    gitHubUser.reposUrl = user.reposUrl
                     
-                    APIEndpoints.downloadUsersAvatar(avatarURL: url) {
-                        (data, error) in
+                    guard let avatarURL = gitHubUser.avatarUrl else {return}
+                    if let url = URL(string: avatarURL) {
                         
-                        guard let data = data else {
-                            return
+                        APIEndpoints.downloadUsersAvatar(avatarURL: url) {
+                            (data, error) in
+                            
+                            guard let data = data else {
+                                return
+                            }
+                            gitHubUser.avatar = data
                         }
-                        gitHubUser.avatar = data
                     }
+                    
                 }
-               
             }
             
             try? self.dataController.viewContext.save()
@@ -154,35 +160,35 @@ extension SearchViewController: UISearchBarDelegate {
         }
     }
     
-
-func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
-    tableView.reloadData()
-    return true
-}
-
-func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-    searchBar.showsCancelButton = true
-}
-
-func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-    searchBar.showsCancelButton = false
-    cleaningDatabase()
-    setupFetchedResultsController()
-    tableView.reloadData()
     
-}
-
-func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-    searchBar.endEditing(true)
-    searchBar.text = nil
-    cleaningDatabase()
-    setupFetchedResultsController()
-    tableView.reloadData()
-}
-func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-    resignFirstResponder()
-}
-
+    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
+        tableView.reloadData()
+        return true
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = true
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+        cleaningDatabase()
+        setupFetchedResultsController()
+        tableView.reloadData()
+        
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.endEditing(true)
+        searchBar.text = nil
+        cleaningDatabase()
+        setupFetchedResultsController()
+        tableView.reloadData()
+    }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        resignFirstResponder()
+    }
+    
 }
 
 //MARK: - tableView
@@ -373,8 +379,12 @@ extension SearchViewController: UISplitViewControllerDelegate {
 }
 
 extension SearchViewController: SearchViewModelDelegate {
+    func downloadedUsers(with users: [Users]) {
+        
+    }
+    
     func fetchSucceeded() {
-
+        
     }
     
     func fetchFailed(error reason: String) {

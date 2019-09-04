@@ -12,6 +12,8 @@ import Foundation
 protocol SearchViewModelDelegate: class {
     func fetchSucceeded()
     func fetchFailed(error reason: String)
+    func downloadedUsers(with users: [Users])
+    
 }
 
 class SearchViewModel {
@@ -21,7 +23,7 @@ class SearchViewModel {
     private var currentPage = 1
     private var totalEntries = 0
     var searchingUser: String
-    
+    var itemsDownloaded: [Users] = []
     
 
     
@@ -41,7 +43,8 @@ class SearchViewModel {
                 
             case .success(let response):
                 DispatchQueue.main.async {
-                    print(response.items)
+                    self.itemsDownloaded = response.items
+                    self.delegate?.downloadedUsers(with: self.itemsDownloaded)
                 }
         }
         
