@@ -11,7 +11,9 @@ import UIKit
 import CoreData
 
 
+
 class DetailsViewController: UIViewController, UIScrollViewDelegate {
+
     
     
     let activityIndicator = UIActivityIndicatorView(style: .gray)
@@ -19,7 +21,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     
     var detailView: DetailView! { return self.view as? DetailView }
     
-    
+    var searchViewModel: SearchViewModel!
     
     var fetchedResultsController: NSFetchedResultsController<Details>!
     var dataController: DataController!
@@ -31,6 +33,9 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
             presentData()
         }
     }
+    private var model: SearchViewModel!
+  
+    
 
     
     //MARK: - View states
@@ -39,7 +44,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         setupFetchedResultsController()
-
+  
     }
     
     
@@ -60,6 +65,8 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
         loadViewIfNeeded()
         self.navigationItem.title = "User details"
         
+    
+        
 //         setting avatar placeholder
         detailView.userAvatar.image = UIImage(named: "user-default")
         
@@ -73,7 +80,10 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
                 guard let avatarUrl = selectedUser.avatarUrl else {return}
                 downloadAvatar(avatar: avatarUrl)
         }
-
+        
+       
+       
+        
         
         // setting UI for the details view
         settingUI()
@@ -282,6 +292,10 @@ extension DetailsViewController: NSFetchedResultsControllerDelegate {
 
 
 extension DetailsViewController: SearchViewModelDelegate {
+    func downloadedResult(user: [Users]) {
+        
+    }
+    
     func fetchSucceeded() {
         
     }
@@ -290,9 +304,6 @@ extension DetailsViewController: SearchViewModelDelegate {
         
     }
     
-    func downloadedUsers(with users: [Users]) {
-        
-    }
     
     
 }

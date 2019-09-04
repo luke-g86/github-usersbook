@@ -379,7 +379,8 @@ extension SearchViewController: UISplitViewControllerDelegate {
 }
 
 extension SearchViewController: SearchViewModelDelegate {
-    func downloadedUsers(with users: [Users]) {
+    func downloadedResult(user: [Users]) {
+        print("test")
         
     }
     
