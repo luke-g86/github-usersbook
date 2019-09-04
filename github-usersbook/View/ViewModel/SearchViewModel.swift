@@ -44,7 +44,7 @@ class SearchViewModel {
             switch result {
             case .failure(let error):
                 DispatchQueue.main.async {
-                    isNetworkInProgress = false
+                    self.isNetworkInProgress = false
                     self.delegate?.fetchFailed(error: error.details)
                 }
                 

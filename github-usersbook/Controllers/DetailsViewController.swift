@@ -292,11 +292,7 @@ extension DetailsViewController: NSFetchedResultsControllerDelegate {
 
 
 extension DetailsViewController: SearchViewModelDelegate {
-    func downloadedResult(user: [Users]) {
-        
-    }
-    
-    func fetchSucceeded() {
+    func fetchSucceeded(with newIndexPathsForTableView: [IndexPath]?) {
         
     }
     
@@ -304,6 +300,6 @@ extension DetailsViewController: SearchViewModelDelegate {
         
     }
     
-    
+  
     
 }

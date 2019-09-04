@@ -226,6 +226,15 @@ extension SearchViewController {
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return fixedRowSize
     }
+
+    //MARK: TableViewInfiniteScrolling
+    
+    func visibleTableViewIndex(indexPaths: [IndexPath]) -> [IndexPath] {
+        let indexPathsForVisibleRows = tableView.indexPathsForVisibleRows ?? []
+        let indexPathsIntersection = Set(indexPathsForVisibleRows).intersection(indexPaths)
+        
+        return Array(indexPathsIntersection)
+    }
     
     //MARK: Animation
     
@@ -379,18 +388,21 @@ extension SearchViewController: UISplitViewControllerDelegate {
 }
 
 extension SearchViewController: SearchViewModelDelegate {
-    func downloadedResult(user: [Users]) {
-        print("test")
+    func fetchSucceeded(with newIndexPathsForTableView: [IndexPath]?) {
         
-    }
-    
-    func fetchSucceeded() {
+        guard let newIndexPathsForTableView = newIndexPathsForTableView else {
+            return
+        }
         
+        let indexToReload = visibleTableViewIndex(indexPaths: newIndexPathsForTableView)
+        tableView.reloadRows(at: indexToReload, with: .automatic)
     }
     
     func fetchFailed(error reason: String) {
         
     }
+    
+
     
     
 }
