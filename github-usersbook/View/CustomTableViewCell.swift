@@ -62,7 +62,7 @@ class CustomTableViewCell: UITableViewCell {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     
     func addLayoutContraints() {
         cellView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 5).isActive = true

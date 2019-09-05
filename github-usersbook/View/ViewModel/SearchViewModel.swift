@@ -26,6 +26,8 @@ class SearchViewModel {
     var itemsDownloaded: [Users] = []
     var isNetworkInProgress: Bool = false
     
+    var itemsDownloadedCount: Int { return itemsDownloaded.count }
+    var totalCount: Int { return totalEntries }
     
     init(searchingUser:String?, delegate: SearchViewModelDelegate) {
         self.delegate = delegate
@@ -54,11 +56,13 @@ class SearchViewModel {
                     self.currentPage += 1
                     self.isNetworkInProgress = false
                     self.itemsDownloaded = response.items
-                    
+                    self.totalEntries = response.totalCount
                     self.delegate?.fetchedUsers(with: self.itemsDownloaded)
                     
                     if response.totalCount > 30 {
                         let indexForTableView = self.calculateIndexPathsToRefreshTableView(self.itemsDownloaded)
+                        print("total count \(response.totalCount)")
+                        print(indexForTableView)
                         self.delegate?.fetchSucceeded(with: indexForTableView)
                     } else {
                         

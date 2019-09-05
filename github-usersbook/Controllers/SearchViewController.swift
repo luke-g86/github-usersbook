@@ -125,6 +125,7 @@ extension SearchViewController: UISearchBarDelegate {
         DispatchQueue.main.async {
        
                 for user in data {
+                    print(user.login)
                     let gitHubUser = User(context: self.dataController.viewContext)
                     gitHubUser.avatarUrl = user.avatar
                     gitHubUser.creationDate = Date()
@@ -185,21 +186,31 @@ extension SearchViewController: UISearchBarDelegate {
 
 //MARK: - tableView
 
-extension SearchViewController {
+extension SearchViewController: UITableViewDataSourcePrefetching {
     override func numberOfSections(in tableView: UITableView) -> Int {
         return fetchedResultsController.sections?.count ?? 1
+//        return 1
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+//        return searchViewModel.totalCount
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let gitHubUser = fetchedResultsController.object(at: indexPath)
         let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! CustomTableViewCell
-        cell.userNickname.text = gitHubUser.login
-        cell.userAvatar.image = UIImage(named: "user-default")
+        
+        if isLoadingCell(for: indexPath){
+            cell.userNickname.text = " "
+            cell.userAvatar.image = UIImage(named: "user-default")
+        } else {
+            
+            cell.userNickname.text = gitHubUser.login
+            cell.userAvatar.image = UIImage(named: "user-default")
+        }
+ 
         
         //MARK: Downloading avatar
         if let avatar = gitHubUser.avatar {
@@ -218,6 +229,12 @@ extension SearchViewController {
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return fixedRowSize
     }
+    
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        if indexPaths.contains(where: isLoadingCell(for:)) {
+            searchViewModel.fetchSearchedUsers()
+        }
+    }
 
     //MARK: TableViewInfiniteScrolling
     
@@ -226,6 +243,10 @@ extension SearchViewController {
         let indexPathsIntersection = Set(indexPathsForVisibleRows).intersection(indexPaths)
         
         return Array(indexPathsIntersection)
+    }
+    
+    private func isLoadingCell(for indexPath: IndexPath) -> Bool {
+        return indexPath.row >= searchViewModel.itemsDownloadedCount
     }
     
     //MARK: Animation
@@ -391,9 +412,10 @@ extension SearchViewController: SearchViewModelDelegate {
     func fetchSucceeded(with newIndexPathsForTableView: [IndexPath]?) {
         
         guard let newIndexPathsForTableView = newIndexPathsForTableView else {
+            tableView.reloadData()
             return
         }
-        
+        print("newIndexPath")
         let indexToReload = visibleTableViewIndex(indexPaths: newIndexPathsForTableView)
         tableView.reloadRows(at: indexToReload, with: .automatic)
     }
