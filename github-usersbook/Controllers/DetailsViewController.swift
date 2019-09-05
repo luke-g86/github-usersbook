@@ -291,15 +291,5 @@ extension DetailsViewController: NSFetchedResultsControllerDelegate {
 }
 
 
-extension DetailsViewController: SearchViewModelDelegate {
-    func fetchSucceeded(with newIndexPathsForTableView: [IndexPath]?) {
-        
-    }
+
     
-    func fetchFailed(error reason: String) {
-        
-    }
-    
-  
-    
-}

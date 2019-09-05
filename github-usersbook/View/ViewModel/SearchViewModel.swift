@@ -12,7 +12,7 @@ import Foundation
 protocol SearchViewModelDelegate: class {
     func fetchSucceeded(with newIndexPathsForTableView: [IndexPath]?)
     func fetchFailed(error reason: String)
-
+    func fetchedUsers(with users: [Users]?)
 }
 
 class SearchViewModel {
@@ -40,6 +40,7 @@ class SearchViewModel {
         isNetworkInProgress = true
         
         guard let searchingUser = searchingUser else {return}
+        
         APIEndpoints.search(query: searchingUser, page: currentPage) { result in
             switch result {
             case .failure(let error):
@@ -53,6 +54,8 @@ class SearchViewModel {
                     self.currentPage += 1
                     self.isNetworkInProgress = false
                     self.itemsDownloaded = response.items
+                    
+                    self.delegate?.fetchedUsers(with: self.itemsDownloaded)
                     
                     if response.totalCount > 30 {
                         let indexForTableView = self.calculateIndexPathsToRefreshTableView(self.itemsDownloaded)

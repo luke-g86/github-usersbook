@@ -20,6 +20,7 @@ class SearchViewController: UITableViewController {
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<User>!
     var searchViewModel: SearchViewModel!
+    var fetchedUsers: [Users]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,10 +31,7 @@ class SearchViewController: UITableViewController {
         splitViewController?.delegate = self
         navigationItem.title = "GitHub users finder"
         
-        
-        searchViewModel = SearchViewModel(searchingUser: "luke-g86", delegate: self)
-        
-        searchViewModel.fetchSearchedUsers()
+        searchViewModel = SearchViewModel(searchingUser: nil, delegate: self)
     }
     
     
@@ -115,22 +113,17 @@ extension SearchViewController: UISearchBarDelegate {
             tableView.reloadData()
             if fetchedResultsController.fetchedObjects?.count == 0 {
                 
-             _ = APIEndpoints.search(query: searchQuery, page: 1, completion: completionHandlerForNetworkRequest(_:))
+             searchViewModel.searchingUser = searchQuery
+             searchViewModel.fetchSearchedUsers()
             
             }
         }  
     }
     
     
-    func completionHandlerForNetworkRequest(_ result: Result<UsersSearch, DataFetchErrors>) {
+    func fetchedDataProcessor(_ data: [Users]) {
         DispatchQueue.main.async {
-            
-            switch result {
-            case .failure(let error):
-                print(error.localizedDescription)
-            case .success(let usersSearch):
-                let data = usersSearch.items
-                
+       
                 for user in data {
                     let gitHubUser = User(context: self.dataController.viewContext)
                     gitHubUser.avatarUrl = user.avatar
@@ -153,12 +146,11 @@ extension SearchViewController: UISearchBarDelegate {
                     }
                     
                 }
-            }
-            
             try? self.dataController.viewContext.save()
             self.tableView.reloadData()
+            }
+        
         }
-    }
     
     
     func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
@@ -388,6 +380,14 @@ extension SearchViewController: UISplitViewControllerDelegate {
 }
 
 extension SearchViewController: SearchViewModelDelegate {
+    func fetchedUsers(with users: [Users]?) {
+        guard let users = users else { return }
+        fetchedDataProcessor(users)
+        
+    }
+    
+
+    
     func fetchSucceeded(with newIndexPathsForTableView: [IndexPath]?) {
         
         guard let newIndexPathsForTableView = newIndexPathsForTableView else {
