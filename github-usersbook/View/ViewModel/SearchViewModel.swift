@@ -19,12 +19,23 @@ class SearchViewModel {
     
     
     private weak var delegate: SearchViewModelDelegate?
-    
+
     private var currentPage = 1
     private var totalEntries = 0
+    private lazy var page: Int = {
+        if searchCompleted {
+            return 1
+        } else {
+            return currentPage
+        }
+    }()
+    
+    private var itemsDownloaded: [Users] = []
+    private var isNetworkInProgress: Bool = false
+    
+    var searchCompleted: Bool = false
     var searchingUser: String?
-    var itemsDownloaded: [Users] = []
-    var isNetworkInProgress: Bool = false
+    
     
     var itemsDownloadedCount: Int { return itemsDownloaded.count }
     var totalCount: Int { return totalEntries }
@@ -43,7 +54,8 @@ class SearchViewModel {
         
         guard let searchingUser = searchingUser else {return}
         
-        APIEndpoints.search(query: searchingUser, page: currentPage) { result in
+        
+        APIEndpoints.search(query: searchingUser, page: page) { result in
             switch result {
             case .failure(let error):
                 DispatchQueue.main.async {

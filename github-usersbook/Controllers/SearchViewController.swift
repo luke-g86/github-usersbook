@@ -42,6 +42,8 @@ class SearchViewController: UITableViewController {
         tableView.reloadData()
         settingsForDevice()
         
+
+
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -70,6 +72,7 @@ class SearchViewController: UITableViewController {
         tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "searchCell")
         tableView.allowsSelection = true
         tableView.refreshControl = refreshControl
+        tableView.prefetchDataSource = self
     }
     
     //MARK: TableView row selection
@@ -112,7 +115,7 @@ extension SearchViewController: UISearchBarDelegate {
             setupFetchedResultsController(searchQuery)
             tableView.reloadData()
             if fetchedResultsController.fetchedObjects?.count == 0 {
-                
+                print("searching")
              searchViewModel.searchingUser = searchQuery
              searchViewModel.fetchSearchedUsers()
             
@@ -125,7 +128,7 @@ extension SearchViewController: UISearchBarDelegate {
         DispatchQueue.main.async {
        
                 for user in data {
-                    print(user.login)
+                    
                     let gitHubUser = User(context: self.dataController.viewContext)
                     gitHubUser.avatarUrl = user.avatar
                     gitHubUser.creationDate = Date()
@@ -148,7 +151,6 @@ extension SearchViewController: UISearchBarDelegate {
                     
                 }
             try? self.dataController.viewContext.save()
-            self.tableView.reloadData()
             }
         
         }
@@ -168,7 +170,7 @@ extension SearchViewController: UISearchBarDelegate {
         cleaningDatabase()
         setupFetchedResultsController()
         tableView.reloadData()
-        
+        searchViewModel.searchCompleted = true
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -177,6 +179,7 @@ extension SearchViewController: UISearchBarDelegate {
         cleaningDatabase()
         setupFetchedResultsController()
         tableView.reloadData()
+        searchViewModel.searchCompleted = true
     }
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         resignFirstResponder()
@@ -189,7 +192,7 @@ extension SearchViewController: UISearchBarDelegate {
 extension SearchViewController: UITableViewDataSourcePrefetching {
     override func numberOfSections(in tableView: UITableView) -> Int {
         return fetchedResultsController.sections?.count ?? 1
-//        return 1
+
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -202,15 +205,19 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
         let gitHubUser = fetchedResultsController.object(at: indexPath)
         let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell") as! CustomTableViewCell
         
+        
         if isLoadingCell(for: indexPath){
             cell.userNickname.text = " "
             cell.userAvatar.image = UIImage(named: "user-default")
+
         } else {
-            
+
             cell.userNickname.text = gitHubUser.login
             cell.userAvatar.image = UIImage(named: "user-default")
         }
- 
+
+        cell.userNickname.text = gitHubUser.login
+        cell.userAvatar.image = UIImage(named: "user-default")
         
         //MARK: Downloading avatar
         if let avatar = gitHubUser.avatar {
@@ -246,7 +253,8 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
     }
     
     private func isLoadingCell(for indexPath: IndexPath) -> Bool {
-        return indexPath.row >= searchViewModel.itemsDownloadedCount
+        return indexPath.row >= (fetchedResultsController.fetchedObjects?.count ?? 0) - 2
+//            searchViewModel.itemsDownloadedCount - 5
     }
     
     //MARK: Animation
@@ -411,13 +419,14 @@ extension SearchViewController: SearchViewModelDelegate {
     
     func fetchSucceeded(with newIndexPathsForTableView: [IndexPath]?) {
         
-        guard let newIndexPathsForTableView = newIndexPathsForTableView else {
+        guard let newIndexPathsForTableViewToReload = newIndexPathsForTableView else {
             tableView.reloadData()
             return
         }
-        print("newIndexPath")
-        let indexToReload = visibleTableViewIndex(indexPaths: newIndexPathsForTableView)
-        tableView.reloadRows(at: indexToReload, with: .automatic)
+        
+        let indexToReload = visibleTableViewIndex(indexPaths: newIndexPathsForTableViewToReload)
+        tableView.reloadRows(at: indexToReload, with: .left)
+        
     }
     
     func fetchFailed(error reason: String) {
