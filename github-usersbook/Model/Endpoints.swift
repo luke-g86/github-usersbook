@@ -19,7 +19,7 @@ class APIEndpoints {
         
         var stringUrlBody: String {
             switch self {
-            case .userSearch (let query, let page): return baseURL.base + "/search/users?q=\(query)&page=\(page)"
+            case .userSearch (let query, let page): return baseURL.base + "/search/users?q=\(query)&page=\(page)&sort=login&order=asc"
             case .userRepos (let userName): return baseURL.base + "/users/\(userName)/repos"
             case .userDetails (let userName): return baseURL.base + "/\(userName)"
             }

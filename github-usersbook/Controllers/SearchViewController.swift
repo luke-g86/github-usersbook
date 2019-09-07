@@ -124,6 +124,7 @@ extension SearchViewController: UISearchBarDelegate {
     
     
     func fetchedDataProcessor(_ data: [Users]) {
+        
         DispatchQueue.main.async {
        
                 for user in data {
@@ -170,7 +171,7 @@ extension SearchViewController: UISearchBarDelegate {
         cleaningDatabase()
         setupFetchedResultsController()
         tableView.reloadData()
-        searchViewModel.searchCompleted = true
+        
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -266,12 +267,12 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
     
     //MARK: Animation
     
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        cell.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-        UIView.animate(withDuration: 0.4) {
-            cell.transform = CGAffineTransform.identity
-        }
-    }
+//    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        cell.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+//        UIView.animate(withDuration: 0.4) {
+//            cell.transform = CGAffineTransform.identity
+//        }
+//    }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)

@@ -256,7 +256,6 @@ extension DetailsViewController: NSFetchedResultsControllerDelegate {
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
-        print("changes to be implemented in a tableView")
         switch type {
         case .insert: detailView.detailsTableView.insertRows(at: [newIndexPath!], with: .fade)
         case .delete: detailView.detailsTableView.deleteRows(at: [indexPath!], with: .fade)
