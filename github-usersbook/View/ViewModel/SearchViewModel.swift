@@ -22,13 +22,14 @@ class SearchViewModel {
 
     private var currentPage = 1
     private var totalEntries = 0
-    private lazy var page: Int = {
+    private var page: Int {
         if searchCompleted {
-            return 1
+            currentPage = 1
+            return currentPage
         } else {
             return currentPage
         }
-    }()
+    }
     
     private var itemsDownloaded: [Users] = []
     private var isNetworkInProgress: Bool = false
@@ -48,12 +49,14 @@ class SearchViewModel {
     func fetchSearchedUsers() {
         
         guard !isNetworkInProgress else {
+            print("Network in progress \(isNetworkInProgress)")
             return
         }
         isNetworkInProgress = true
         
         guard let searchingUser = searchingUser else {return}
         
+        print("searching")
         
         APIEndpoints.search(query: searchingUser, page: page) { result in
             switch result {
@@ -64,6 +67,9 @@ class SearchViewModel {
                 }
                 
             case .success(let response):
+                print("search is completed: \(self.searchCompleted)")
+                print("number of page \(self.page)")
+                print("current page \(self.currentPage)")
                 DispatchQueue.main.async {
                     self.currentPage += 1
                     self.isNetworkInProgress = false
@@ -73,8 +79,6 @@ class SearchViewModel {
                     
                     if response.totalCount > 30 {
                         let indexForTableView = self.calculateIndexPathsToRefreshTableView(self.itemsDownloaded)
-                        print("total count \(response.totalCount)")
-                        print(indexForTableView)
                         self.delegate?.fetchSucceeded(with: indexForTableView)
                     } else {
                         

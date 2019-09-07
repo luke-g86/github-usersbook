@@ -115,12 +115,11 @@ extension SearchViewController: UISearchBarDelegate {
             setupFetchedResultsController(searchQuery)
             tableView.reloadData()
             if fetchedResultsController.fetchedObjects?.count == 0 {
-                print("searching")
              searchViewModel.searchingUser = searchQuery
              searchViewModel.fetchSearchedUsers()
             
             }
-        }  
+        }
     }
     
     
@@ -166,6 +165,7 @@ extension SearchViewController: UISearchBarDelegate {
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        resignFirstResponder()
         searchBar.showsCancelButton = false
         cleaningDatabase()
         setupFetchedResultsController()
@@ -253,8 +253,15 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
     }
     
     private func isLoadingCell(for indexPath: IndexPath) -> Bool {
-        return indexPath.row >= (fetchedResultsController.fetchedObjects?.count ?? 0) - 2
-//            searchViewModel.itemsDownloadedCount - 5
+        
+        guard let data = fetchedResultsController.fetchedObjects else {
+            print("no fetched objects")
+            return false
+        }
+        return indexPath.row >= data.count - 2
+
+//        return indexPath.row >= (fetchedResultsController.fetchedObjects?.count ?? 0) - 2
+//            return indexPath.row >= searchViewModel.itemsDownloadedCount - 2
     }
     
     //MARK: Animation
@@ -341,10 +348,11 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         
         do {
             try fetchedResultsController.performFetch()
-            
+    
         } catch {
             fatalError("Fetch could not be performed: \(error.localizedDescription)")
         }
+            print("saved data of users: \(fetchedResultsController.fetchedObjects?.count)")
     }
     
     func cleaningDatabase() {
@@ -359,7 +367,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         guard let data = fetchedResultsController.fetchedObjects else { return }
         for object in data {
             // deletion if object has no details, creation date or it is older than full 7 days
-            if (object.details?.count == 0) || (object.creationDate ?? expirationDate <= expirationDate) {
+            if object.details == nil || object.creationDate ?? expirationDate <= expirationDate {
                 dataController.viewContext.delete(object)
             }
         }
@@ -368,9 +376,9 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch type {
-        case .insert: tableView.insertRows(at: [newIndexPath!], with: .fade)
-        case .delete: tableView.deleteRows(at: [indexPath!], with: .fade)
-        case .update: tableView.reloadRows(at: [indexPath!], with: .fade)
+        case .insert: tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        case .delete: tableView.deleteRows(at: [indexPath!], with: .automatic)
+        case .update: tableView.reloadRows(at: [indexPath!], with: .automatic)
         case .move: tableView.moveRow(at: indexPath!, to: newIndexPath!)
             
         @unknown default: fatalError("invalid change type in controller didChange")
@@ -425,12 +433,12 @@ extension SearchViewController: SearchViewModelDelegate {
         }
         
         let indexToReload = visibleTableViewIndex(indexPaths: newIndexPathsForTableViewToReload)
-        tableView.reloadRows(at: indexToReload, with: .left)
+        tableView.reloadRows(at: indexToReload, with: .automatic)
         
     }
     
     func fetchFailed(error reason: String) {
-        
+        print(reason)
     }
     
 
