@@ -19,7 +19,7 @@ class DetailsViewController: UIViewController, UIScrollViewDelegate {
     let activityIndicator = UIActivityIndicatorView(style: .gray)
     
     
-    var detailView: DetailView! { return self.view as? DetailView }
+    weak var detailView: DetailView! { return self.view as? DetailView }
     
     var searchViewModel: SearchViewModel!
     

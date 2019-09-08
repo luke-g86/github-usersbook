@@ -22,6 +22,8 @@ class SearchViewController: UITableViewController {
     var searchViewModel: SearchViewModel!
     var fetchedUsers: [Users]?
     
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupFetchedResultsController()
@@ -122,6 +124,7 @@ extension SearchViewController: UISearchBarDelegate {
         }
     }
     
+    //MARK: - Network
     
     func fetchedDataProcessor(_ data: [Users]) {
         
@@ -150,6 +153,7 @@ extension SearchViewController: UISearchBarDelegate {
                     }
                     
                 }
+            
             try? self.dataController.viewContext.save()
             }
         
@@ -210,11 +214,14 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
         if isLoadingCell(for: indexPath){
             cell.userNickname.text = " "
             cell.userAvatar.image = UIImage(named: "user-default")
-
+            cell.activityIndicator.isHidden = false
+            cell.activityIndicator.startAnimating()
+            
         } else {
 
             cell.userNickname.text = gitHubUser.login
             cell.userAvatar.image = UIImage(named: "user-default")
+            cell.activityIndicator.stopAnimating()
         }
 
         cell.userNickname.text = gitHubUser.login
@@ -283,7 +290,7 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
             self?.tableView.reloadData()
             self?.tableView.frame = self!.view.frame
         }
-        
+      
         let completionHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
             // This block will be called when rotation will be completed
             self?.tableView.reloadData()

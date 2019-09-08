@@ -55,7 +55,7 @@ class DetailView: UIView {
         super.init(frame: frame)
         self.selectedUser = selectedUser
         self.detailsViewController = detailsViewController
-        print("detail view init")
+        
         tableViewDelegates = TableViewDelegates(detailsViewController: detailsViewController)
         
     }

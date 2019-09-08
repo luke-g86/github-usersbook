@@ -40,6 +40,15 @@ class CustomTableViewCell: UITableViewCell {
         return label
     }()
     
+    lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .gray)
+        indicator.hidesWhenStopped = true
+        indicator.color = #colorLiteral(red: 0.3647058904, green: 0.06666667014, blue: 0.9686274529, alpha: 1)
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        
+        return indicator
+    }()
+    
     override func layoutSubviews() {
         contentView.backgroundColor = UIColor.clear
         backgroundColor = UIColor.clear
@@ -54,7 +63,7 @@ class CustomTableViewCell: UITableViewCell {
         self.contentView.addSubview(cellView)
         cellView.addSubview(userAvatar)
         cellView.addSubview(userNickname)
-        
+        cellView.addSubview(activityIndicator)
         addLayoutContraints()
     }
     
@@ -78,5 +87,8 @@ class CustomTableViewCell: UITableViewCell {
         userNickname.centerYAnchor.constraint(equalTo: self.userAvatar.centerYAnchor, constant: 0).isActive = true
         userNickname.leadingAnchor.constraint(equalTo: self.userAvatar.trailingAnchor, constant: 20).isActive = true
         userNickname.trailingAnchor.constraint(equalTo: self.cellView.trailingAnchor, constant: -20).isActive = true
+        
+        activityIndicator.centerXAnchor.constraint(equalTo: cellView.centerXAnchor).isActive = true
+        activityIndicator.centerYAnchor.constraint(equalTo: cellView.centerYAnchor).isActive = true
     }
 }
