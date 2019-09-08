@@ -15,7 +15,7 @@ class DetailView: UIView {
     
     
     var detailsViewController: DetailsViewController!
-    var tableViewDelegates: TableViewDelegates?
+    
     
     
     let generalContainer: UIView = {
@@ -55,9 +55,6 @@ class DetailView: UIView {
         super.init(frame: frame)
         self.selectedUser = selectedUser
         self.detailsViewController = detailsViewController
-        
-        tableViewDelegates = TableViewDelegates(detailsViewController: detailsViewController)
-        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -204,8 +201,8 @@ class DetailView: UIView {
         
         detailsTableView.clipsToBounds = true
         detailsTableView.translatesAutoresizingMaskIntoConstraints = false
-        detailsTableView.delegate = tableViewDelegates
-        detailsTableView.dataSource = tableViewDelegates
+        detailsTableView.delegate = detailsViewController
+        detailsTableView.dataSource = detailsViewController
         detailsTableView.reloadData()
         
         
