@@ -347,7 +347,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
             fetchRequest.predicate = predicate
         }
         
-        let sortDescriptor = NSSortDescriptor(key: "login", ascending: true)
+        let sortDescriptor = NSSortDescriptor(key: "login", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "users")
         
@@ -384,7 +384,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch type {
-        case .insert: tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        case .insert: tableView.insertRows(at: [newIndexPath!], with: .none)
         case .delete: tableView.deleteRows(at: [indexPath!], with: .automatic)
         case .update: tableView.reloadRows(at: [indexPath!], with: .automatic)
         case .move: tableView.moveRow(at: indexPath!, to: newIndexPath!)
@@ -397,7 +397,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         let indexSet = IndexSet(integer: sectionIndex)
         
         switch type {
-        case .insert: tableView.insertSections(indexSet, with: .fade)
+        case .insert: tableView.insertSections(indexSet, with: .none)
         case .delete: tableView.deleteSections(indexSet, with: .fade)
         case .update, .move:
             fatalError("Invalid change type in controller didChange at section")
