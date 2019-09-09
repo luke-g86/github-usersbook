@@ -21,7 +21,8 @@ class SearchViewController: UITableViewController {
     var fetchedResultsController: NSFetchedResultsController<User>!
     var searchViewModel: SearchViewModel!
     var fetchedUsers: [Users]?
-    
+    var user: User!
+    var fetchingData: Bool = false
     
     
     override func viewDidLoad() {
@@ -128,8 +129,11 @@ extension SearchViewController: UISearchBarDelegate {
     
     func fetchedDataProcessor(_ data: [Users]) {
         
+        let backgroundContext: NSManagedObjectContext! = dataController.backgroundContext
+        
+        
         DispatchQueue.main.async {
-       
+            
                 for user in data {
                     
                     let gitHubUser = User(context: self.dataController.viewContext)
@@ -212,13 +216,14 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
         
         
         if isLoadingCell(for: indexPath){
+            fetchingData = true
             cell.userNickname.text = " "
             cell.userAvatar.image = UIImage(named: "user-default")
             cell.activityIndicator.isHidden = false
             cell.activityIndicator.startAnimating()
             
         } else {
-
+            fetchingData = false
             cell.userNickname.text = gitHubUser.login
             cell.userAvatar.image = UIImage(named: "user-default")
             cell.activityIndicator.stopAnimating()
@@ -255,8 +260,9 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
     
     func visibleTableViewIndex(indexPaths: [IndexPath]) -> [IndexPath] {
         let indexPathsForVisibleRows = tableView.indexPathsForVisibleRows ?? []
+        print(indexPathsForVisibleRows)
         let indexPathsIntersection = Set(indexPathsForVisibleRows).intersection(indexPaths)
-        
+        print("insertion \(Array(indexPathsIntersection))")
         return Array(indexPathsIntersection)
     }
     
@@ -281,7 +287,10 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
 //        }
 //    }
     
+    
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+
+        
         super.viewWillTransition(to: size, with: coordinator)
         
         let animationHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
@@ -360,7 +369,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         } catch {
             fatalError("Fetch could not be performed: \(error.localizedDescription)")
         }
-            print("saved data of users: \(fetchedResultsController.fetchedObjects?.count)")
+        print("saved data of users: \(String(describing: fetchedResultsController.fetchedObjects?.count))")
     }
     
     func cleaningDatabase() {

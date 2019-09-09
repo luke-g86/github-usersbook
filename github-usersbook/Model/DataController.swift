@@ -14,20 +14,30 @@ import CoreData
 class DataController {
     
     let persistanceContainer: NSPersistentContainer
-    
+    let persistentStoreCoordinator = NSPersistentStoreCoordinator()
     
     var viewContext: NSManagedObjectContext {
         return persistanceContainer.viewContext
     }
     
+    var backgroundContext: NSManagedObjectContext!
     
     init (modelName: String) {
         persistanceContainer = NSPersistentContainer(name: modelName)
     }
     
+   
+    
     func configureContexts() {
+        
+        backgroundContext = persistanceContainer.newBackgroundContext()
+        
         viewContext.automaticallyMergesChangesFromParent = true
+        backgroundContext.automaticallyMergesChangesFromParent = true
+        
         viewContext.mergePolicy = NSMergePolicy.mergeByPropertyStoreTrump
+        backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
+        
     }
     
     //completion for background context prepared for future usage
