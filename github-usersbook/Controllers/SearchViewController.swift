@@ -119,14 +119,34 @@ extension SearchViewController: UISearchBarDelegate {
         
         if searchQuery.count > 2 {
             
-            setupFetchedResultsController(searchQuery)
-            tableView.reloadData()
-            if fetchedResultsController.fetchedObjects?.count == 0 {
-                searchViewModel.searchingUser = searchQuery
-                searchViewModel.fetchSearchedUsers()
-                
-            }
+            search(searchQuery)
+            
+            //            if fetchedResultsController.fetchedObjects?.count == 0 {
+            searchViewModel.searchingUser = searchQuery
+            searchViewModel.fetchSearchedUsers()
+            //            }
         }
+    }
+    
+    func search(_ searchedLogin: String) {
+        
+        let fetchRequest =  NSFetchRequest<User>(entityName: "User")
+        let predicate = NSPredicate(format:"login CONTAINS[cd] %@", searchedLogin)
+        fetchRequest.predicate = predicate
+        let sortDescriptorLogin = NSSortDescriptor(key: "login", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptorLogin]
+        
+        fetchedResultsController.fetchRequest.predicate = predicate
+        do {
+            NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
+            
+            try fetchedResultsController.performFetch()
+            
+        } catch {
+            print(error.localizedDescription)
+        }
+        tableView.reloadData()
+        
     }
     
     //MARK: - Network
@@ -140,7 +160,7 @@ extension SearchViewController: UISearchBarDelegate {
         let matchingRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
         backgroundContext.performAndWait {
             let login = data.map {$0.login}.compactMap{$0}
-            matchingRequest.predicate = NSPredicate(format: "login in %@", argumentArray: [login])
+            matchingRequest.predicate = NSPredicate(format: "login ==[c] %@", argumentArray: [login])
             
             let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: matchingRequest)
             batchDeleteRequest.resultType = .resultTypeObjectIDs
@@ -168,19 +188,19 @@ extension SearchViewController: UISearchBarDelegate {
                 gitHubUser.score = user.score ?? 0
                 gitHubUser.reposUrl = user.reposUrl
                 
-                //                guard let avatarURL = gitHubUser.avatarUrl else {return}
-                //                if let url = URL(string: avatarURL) {
-                //
-                //                    APIEndpoints.downloadUsersAvatar(avatarURL: url) {
-                //                        (data, error) in
-                //
-                //                        guard let data = data else {
-                //                            return
-                //                        }
-                //                        gitHubUser.avatar = data
-                //                    }
-                //
-                //                }
+                guard let avatarURL = gitHubUser.avatarUrl else {return}
+                if let url = URL(string: avatarURL) {
+                    
+                    APIEndpoints.downloadUsersAvatar(avatarURL: url) {
+                        (data, error) in
+                        
+                        guard let data = data else {
+                            return
+                        }
+                        gitHubUser.avatar = data
+                    }
+                    
+                }
                 
                 if backgroundContext.hasChanges {
                     do {
@@ -189,6 +209,7 @@ extension SearchViewController: UISearchBarDelegate {
                         print("error while saving: \(error.localizedDescription)")
                     }
                     backgroundContext.reset()
+                    tableView.reloadData()
                 }
                 
             }
@@ -197,33 +218,62 @@ extension SearchViewController: UISearchBarDelegate {
     
     func fetchedDataProcessor(_ data: [Users]) {
         
-        DispatchQueue.main.async {
-         
-        for user in data {
-            
-            let gitHubUser = User(context: self.dataController.viewContext)
-            gitHubUser.avatarUrl = user.avatar
-            gitHubUser.creationDate = Date()
-            gitHubUser.login = user.login
-            gitHubUser.score = user.score ?? 0
-            gitHubUser.reposUrl = user.reposUrl
-            
-            guard let avatarURL = gitHubUser.avatarUrl else {return}
-            if let url = URL(string: avatarURL) {
-                
-                APIEndpoints.downloadUsersAvatar(avatarURL: url) {
-                    (data, error) in
-                    
-                    guard let data = data else {
+        print(data.count)
+        
+                let matchingRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
+                dataController.viewContext.performAndWait {
+                    let login = data.map {$0.login}.compactMap{$0}
+                    matchingRequest.predicate = NSPredicate(format: "login ==[c] %@", argumentArray: [login])
+        
+                    let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: matchingRequest)
+                    batchDeleteRequest.resultType = .resultTypeObjectIDs
+        
+                    do {
+                        let batchDeleteResult = try dataController.viewContext.execute(batchDeleteRequest) as? NSBatchDeleteResult
+        
+                        if let deletedObjectIDs = batchDeleteResult?.result as? [NSManagedObjectID] {
+        
+                            NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: deletedObjectIDs], into: [dataController.viewContext])
+                        }
+                    } catch {
+                        print("Error: \(error.localizedDescription)")
                         return
                     }
-                    gitHubUser.avatar = data
-                }
-            }
             
+            
+            DispatchQueue.main.async {
+                
+                for user in data {
+                    
+                    //            let login = data.map {$0.login}.compactMap{$0}
+                    //            matchingRequest.predicate = NSPredicate(format: "login in %@", argumentArray: [login])
+                    //            let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: matchingRequest)
+                    //            batchDeleteRequest.resultType = .resultTypeObjectIDs
+                    
+                    let gitHubUser = User(context: self.dataController.viewContext)
+                    gitHubUser.avatarUrl = user.avatar
+                    gitHubUser.creationDate = Date()
+                    gitHubUser.login = user.login
+                    gitHubUser.score = user.score ?? 0
+                    gitHubUser.reposUrl = user.reposUrl
+                    
+                    guard let avatarURL = gitHubUser.avatarUrl else {return}
+                    if let url = URL(string: avatarURL) {
+                        
+                        APIEndpoints.downloadUsersAvatar(avatarURL: url) {
+                            (data, error) in
+                            
+                            guard let data = data else {
+                                return
+                            }
+                            gitHubUser.avatar = data
+                        }
+                    }
+                    
+                }
+                try? self.dataController.viewContext.save()
+            }
         }
-        try? self.dataController.viewContext.save()
-    }
     }
     
     
@@ -271,7 +321,7 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return fetchedResultsController.sections?[section].numberOfObjects ?? 0
-        //        return searchViewModel.totalCount
+        
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -293,6 +343,8 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
             cell.userAvatar.image = UIImage(named: "user-default")
             cell.activityIndicator.stopAnimating()
         }
+        
+        cell.activityIndicator.stopAnimating()
         
         cell.userNickname.text = gitHubUser.login
         cell.userAvatar.image = UIImage(named: "user-default")
@@ -327,7 +379,6 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
         let indexPathsForVisibleRows = tableView.indexPathsForVisibleRows ?? []
         print(indexPathsForVisibleRows)
         let indexPathsIntersection = Set(indexPathsForVisibleRows).intersection(indexPaths)
-        print("insertion \(Array(indexPathsIntersection))")
         return Array(indexPathsIntersection)
     }
     
@@ -416,10 +467,9 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         
         NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
         let fetchRequest =  NSFetchRequest<User>(entityName: "User")
-        if searchText != nil {
-            let predicate = NSPredicate(format:"login CONTAINS[cd] == %@", searchText!)
-            fetchRequest.predicate = predicate
-        }
+        
+        
+        //"login CONTAINS[cd] '\(searchText!)'"
         
         let sortDescriptorLogin = NSSortDescriptor(key: "login", ascending: false)
         let sortDescriptorDate = NSSortDescriptor(key: "creationDate", ascending: true)
@@ -428,14 +478,12 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         
         fetchedResultsController.delegate = self
         
-        
         do {
             try fetchedResultsController.performFetch()
             
         } catch {
             fatalError("Fetch could not be performed: \(error.localizedDescription)")
         }
-        print("saved data of users: \(String(describing: fetchedResultsController.fetchedObjects?.count))")
     }
     
     func cleaningDatabase() {
@@ -459,10 +507,9 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch type {
-        case .insert: tableView.insertRows(at: [newIndexPath!], with: .none)
-            
-        case .delete: tableView.deleteRows(at: [indexPath!], with: .automatic)
-        case .update: tableView.reloadRows(at: [indexPath!], with: .automatic)
+        case .insert: tableView.insertRows(at: [newIndexPath!], with: .fade)
+        case .delete: tableView.deleteRows(at: [indexPath!], with: .fade)
+        case .update: tableView.reloadRows(at: [indexPath!], with: .fade)
         case .move: tableView.moveRow(at: indexPath!, to: newIndexPath!)
             
         @unknown default: fatalError("invalid change type in controller didChange")
@@ -473,7 +520,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         let indexSet = IndexSet(integer: sectionIndex)
         
         switch type {
-        case .insert: tableView.insertSections(indexSet, with: .none)
+        case .insert: tableView.insertSections(indexSet, with: .fade)
         case .delete: tableView.deleteSections(indexSet, with: .fade)
         case .update, .move:
             fatalError("Invalid change type in controller didChange at section")
@@ -489,6 +536,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
+        
     }
 }
 
@@ -500,11 +548,18 @@ extension SearchViewController: UISplitViewControllerDelegate {
     }
 }
 
+
+//MARK: - Protocols
+
 extension SearchViewController: SearchViewModelDelegate {
     func fetchedUsers(with users: [Users]?) {
         guard let users = users else { return }
-        fetchedDataProcessor(users)
         
+        //        if fetchedResultsController.fetchedObjects?.count == 0 {
+        fetchedDataProcessor(users)
+        //        } else {
+        //            syncData(users)
+        //        }
     }
     
     
@@ -517,7 +572,7 @@ extension SearchViewController: SearchViewModelDelegate {
         }
         
         let indexToReload = visibleTableViewIndex(indexPaths: newIndexPathsForTableViewToReload)
-        tableView.reloadRows(at: indexToReload, with: .automatic)
+        tableView.reloadRows(at: indexToReload, with: .fade)
         
     }
     
