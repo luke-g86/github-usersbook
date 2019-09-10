@@ -131,8 +131,74 @@ extension SearchViewController: UISearchBarDelegate {
     
     //MARK: - Network
     
+    func syncData(_ data: [Users]) {
+        
+        let backgroundContext = dataController.persistanceContainer.newBackgroundContext()
+        backgroundContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        backgroundContext.undoManager = nil
+        
+        let matchingRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
+        backgroundContext.performAndWait {
+            let login = data.map {$0.login}.compactMap{$0}
+            matchingRequest.predicate = NSPredicate(format: "login in %@", argumentArray: [login])
+            
+            let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: matchingRequest)
+            batchDeleteRequest.resultType = .resultTypeObjectIDs
+            
+            do {
+                let batchDeleteResult = try backgroundContext.execute(batchDeleteRequest) as? NSBatchDeleteResult
+                
+                if let deletedObjectIDs = batchDeleteResult?.result as? [NSManagedObjectID] {
+                    
+                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: deletedObjectIDs], into: [dataController.viewContext])
+                }
+            } catch {
+                print("Error: \(error.localizedDescription)")
+                return
+            }
+            
+            for user in data {
+                guard let gitHubUser = NSEntityDescription.insertNewObject(forEntityName: "User", into: backgroundContext) as? User else {
+                    print("error: failed to create new user")
+                    return
+                }
+                gitHubUser.avatarUrl = user.avatar
+                gitHubUser.creationDate = Date()
+                gitHubUser.login = user.login
+                gitHubUser.score = user.score ?? 0
+                gitHubUser.reposUrl = user.reposUrl
+                
+                //                guard let avatarURL = gitHubUser.avatarUrl else {return}
+                //                if let url = URL(string: avatarURL) {
+                //
+                //                    APIEndpoints.downloadUsersAvatar(avatarURL: url) {
+                //                        (data, error) in
+                //
+                //                        guard let data = data else {
+                //                            return
+                //                        }
+                //                        gitHubUser.avatar = data
+                //                    }
+                //
+                //                }
+                
+                if backgroundContext.hasChanges {
+                    do {
+                        try backgroundContext.save()
+                    } catch {
+                        print("error while saving: \(error.localizedDescription)")
+                    }
+                    backgroundContext.reset()
+                }
+                
+            }
+        }
+    }
+    
     func fetchedDataProcessor(_ data: [Users]) {
         
+        DispatchQueue.main.async {
+         
         for user in data {
             
             let gitHubUser = User(context: self.dataController.viewContext)
@@ -157,6 +223,7 @@ extension SearchViewController: UISearchBarDelegate {
             
         }
         try? self.dataController.viewContext.save()
+    }
     }
     
     
@@ -350,7 +417,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
         let fetchRequest =  NSFetchRequest<User>(entityName: "User")
         if searchText != nil {
-            let predicate = NSPredicate(format:"login CONTAINS[cd] '\(searchText!)'")
+            let predicate = NSPredicate(format:"login CONTAINS[cd] == %@", searchText!)
             fetchRequest.predicate = predicate
         }
         

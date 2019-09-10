@@ -64,6 +64,7 @@ class SearchViewModel {
                 DispatchQueue.main.async {
                     self.isNetworkInProgress = false
                     self.delegate?.fetchFailed(error: error.details)
+                    print(error.localizedDescription)
                 }
                 
             case .success(let response):
