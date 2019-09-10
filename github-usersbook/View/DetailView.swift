@@ -12,11 +12,7 @@ import UIKit
 class DetailView: UIView {
     
     var selectedUser: User?
-    
-    
     var detailsViewController: DetailsViewController!
-    
-    
     
     let generalContainer: UIView = {
         let view = ViewsFactory.view(forBackground: UIColor.white, forAutoresizingMaskIntoConstraints: false)
@@ -75,9 +71,9 @@ class DetailView: UIView {
         //MARK: Constraints - ScrollView
         
         scrollView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        scrollView.widthAnchor.constraint(equalTo: self.safeAreaLayoutGuide.widthAnchor).isActive = true
-        scrollView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        scrollView.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
+        scrollView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
         
         
         scrollView.addSubview(generalContainer)

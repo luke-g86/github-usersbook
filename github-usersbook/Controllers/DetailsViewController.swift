@@ -292,11 +292,7 @@ extension DetailsViewController: NSFetchedResultsControllerDelegate {
 extension DetailsViewController: UITableViewDelegate, UITableViewDataSource {
     
     public func numberOfSections(in tableView: UITableView) -> Int {
-        guard let data = fetchedResultsController.sections?.count else { print("error in sections")
-            return 1 }
-       
-        return data
-    
+        return fetchedResultsController.sections?.count ?? 0
     }
     
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

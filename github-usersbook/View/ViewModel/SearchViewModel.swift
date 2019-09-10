@@ -58,7 +58,7 @@ class SearchViewModel {
         
         print("searching")
         
-        APIEndpoints.search(query: searchingUser, page: page) { result in
+        _ = APIEndpoints.search(query: searchingUser, page: page) { result in
             switch result {
             case .failure(let error):
                 DispatchQueue.main.async {

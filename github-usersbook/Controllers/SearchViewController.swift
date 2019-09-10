@@ -35,6 +35,10 @@ class SearchViewController: UITableViewController {
         navigationItem.title = "GitHub users finder"
         
         searchViewModel = SearchViewModel(searchingUser: nil, delegate: self)
+        
+        let tapRecognizer = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
+        tapRecognizer.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapRecognizer)
     }
     
     
@@ -45,8 +49,8 @@ class SearchViewController: UITableViewController {
         tableView.reloadData()
         settingsForDevice()
         
-
-
+        
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -118,9 +122,9 @@ extension SearchViewController: UISearchBarDelegate {
             setupFetchedResultsController(searchQuery)
             tableView.reloadData()
             if fetchedResultsController.fetchedObjects?.count == 0 {
-             searchViewModel.searchingUser = searchQuery
-             searchViewModel.fetchSearchedUsers()
-            
+                searchViewModel.searchingUser = searchQuery
+                searchViewModel.fetchSearchedUsers()
+                
             }
         }
     }
@@ -129,47 +133,41 @@ extension SearchViewController: UISearchBarDelegate {
     
     func fetchedDataProcessor(_ data: [Users]) {
         
-        let backgroundContext: NSManagedObjectContext! = dataController.backgroundContext
-        
-        
-        DispatchQueue.main.async {
+        for user in data {
             
-                for user in data {
+            let gitHubUser = User(context: self.dataController.viewContext)
+            gitHubUser.avatarUrl = user.avatar
+            gitHubUser.creationDate = Date()
+            gitHubUser.login = user.login
+            gitHubUser.score = user.score ?? 0
+            gitHubUser.reposUrl = user.reposUrl
+            
+            guard let avatarURL = gitHubUser.avatarUrl else {return}
+            if let url = URL(string: avatarURL) {
+                
+                APIEndpoints.downloadUsersAvatar(avatarURL: url) {
+                    (data, error) in
                     
-                    let gitHubUser = User(context: self.dataController.viewContext)
-                    gitHubUser.avatarUrl = user.avatar
-                    gitHubUser.creationDate = Date()
-                    gitHubUser.login = user.login
-                    gitHubUser.score = user.score ?? 0
-                    gitHubUser.reposUrl = user.reposUrl
-                    
-                    guard let avatarURL = gitHubUser.avatarUrl else {return}
-                    if let url = URL(string: avatarURL) {
-                        
-                        APIEndpoints.downloadUsersAvatar(avatarURL: url) {
-                            (data, error) in
-                            
-                            guard let data = data else {
-                                return
-                            }
-                            gitHubUser.avatar = data
-                        }
+                    guard let data = data else {
+                        return
                     }
-                    
+                    gitHubUser.avatar = data
                 }
-            
-            try? self.dataController.viewContext.save()
             }
-        
+            
         }
+        try? self.dataController.viewContext.save()
+    }
     
     
     func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
+        resignFirstResponder()
         tableView.reloadData()
         return true
     }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        resignFirstResponder()
         searchBar.showsCancelButton = true
     }
     
@@ -201,12 +199,12 @@ extension SearchViewController: UISearchBarDelegate {
 extension SearchViewController: UITableViewDataSourcePrefetching {
     override func numberOfSections(in tableView: UITableView) -> Int {
         return fetchedResultsController.sections?.count ?? 1
-
+        
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return fetchedResultsController.sections?[section].numberOfObjects ?? 0
-//        return searchViewModel.totalCount
+        //        return searchViewModel.totalCount
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -228,7 +226,7 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
             cell.userAvatar.image = UIImage(named: "user-default")
             cell.activityIndicator.stopAnimating()
         }
-
+        
         cell.userNickname.text = gitHubUser.login
         cell.userAvatar.image = UIImage(named: "user-default")
         
@@ -255,7 +253,7 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
             searchViewModel.fetchSearchedUsers()
         }
     }
-
+    
     //MARK: TableViewInfiniteScrolling
     
     func visibleTableViewIndex(indexPaths: [IndexPath]) -> [IndexPath] {
@@ -273,23 +271,23 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
             return false
         }
         return indexPath.row >= data.count - 2
-
-//        return indexPath.row >= (fetchedResultsController.fetchedObjects?.count ?? 0) - 2
-//            return indexPath.row >= searchViewModel.itemsDownloadedCount - 2
+        
+        //        return indexPath.row >= (fetchedResultsController.fetchedObjects?.count ?? 0) - 2
+        //            return indexPath.row >= searchViewModel.itemsDownloadedCount - 2
     }
     
     //MARK: Animation
     
-//    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        cell.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-//        UIView.animate(withDuration: 0.4) {
-//            cell.transform = CGAffineTransform.identity
-//        }
-//    }
+    //    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    //        cell.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+    //        UIView.animate(withDuration: 0.4) {
+    //            cell.transform = CGAffineTransform.identity
+    //        }
+    //    }
     
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-
+        
         
         super.viewWillTransition(to: size, with: coordinator)
         
@@ -299,7 +297,7 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
             self?.tableView.reloadData()
             self?.tableView.frame = self!.view.frame
         }
-      
+        
         let completionHandler: ((UIViewControllerTransitionCoordinatorContext) -> Void) = { [weak self] (context) in
             // This block will be called when rotation will be completed
             self?.tableView.reloadData()
@@ -356,8 +354,9 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
             fetchRequest.predicate = predicate
         }
         
-        let sortDescriptor = NSSortDescriptor(key: "login", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
+        let sortDescriptorLogin = NSSortDescriptor(key: "login", ascending: false)
+        let sortDescriptorDate = NSSortDescriptor(key: "creationDate", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptorLogin, sortDescriptorDate]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "users")
         
         fetchedResultsController.delegate = self
@@ -365,7 +364,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         
         do {
             try fetchedResultsController.performFetch()
-    
+            
         } catch {
             fatalError("Fetch could not be performed: \(error.localizedDescription)")
         }
@@ -394,6 +393,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
         
         switch type {
         case .insert: tableView.insertRows(at: [newIndexPath!], with: .none)
+            
         case .delete: tableView.deleteRows(at: [indexPath!], with: .automatic)
         case .update: tableView.reloadRows(at: [indexPath!], with: .automatic)
         case .move: tableView.moveRow(at: indexPath!, to: newIndexPath!)
@@ -440,7 +440,7 @@ extension SearchViewController: SearchViewModelDelegate {
         
     }
     
-
+    
     
     func fetchSucceeded(with newIndexPathsForTableView: [IndexPath]?) {
         
@@ -458,7 +458,7 @@ extension SearchViewController: SearchViewModelDelegate {
         print(reason)
     }
     
-
+    
     
     
 }
