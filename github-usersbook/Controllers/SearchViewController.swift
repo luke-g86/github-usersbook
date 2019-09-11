@@ -36,9 +36,10 @@ class SearchViewController: UITableViewController {
         
         searchViewModel = SearchViewModel(searchingUser: nil, delegate: self)
         
-        let tapRecognizer = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
-        tapRecognizer.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapRecognizer)
+//        let tapRecognizer = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
+//        tapRecognizer.cancelsTouchesInView = false
+//        view.addGestureRecognizer(tapRecognizer)
+    
     }
     
     
@@ -80,6 +81,8 @@ class SearchViewController: UITableViewController {
         tableView.allowsSelection = true
         tableView.refreshControl = refreshControl
         tableView.prefetchDataSource = self
+        
+        tableView.keyboardDismissMode = .onDrag
     }
     
     //MARK: TableView row selection
@@ -122,7 +125,7 @@ extension SearchViewController: UISearchBarDelegate {
             search(searchQuery)
             
             //            if fetchedResultsController.fetchedObjects?.count == 0 {
-            searchViewModel.searchingUser = searchQuery
+//            searchViewModel.searchingUser = searchQuery
             searchViewModel.fetchSearchedUsers()
             //            }
         }
@@ -135,10 +138,11 @@ extension SearchViewController: UISearchBarDelegate {
         fetchRequest.predicate = predicate
         let sortDescriptorLogin = NSSortDescriptor(key: "login", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptorLogin]
+        fetchRequest.returnsDistinctResults = true
         
         fetchedResultsController.fetchRequest.predicate = predicate
         do {
-            NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
+            NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: "users")
             
             try fetchedResultsController.performFetch()
             
@@ -276,7 +280,6 @@ extension SearchViewController: UISearchBarDelegate {
         }
     }
     
-    
     func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
         resignFirstResponder()
         tableView.reloadData()
@@ -294,6 +297,7 @@ extension SearchViewController: UISearchBarDelegate {
         cleaningDatabase()
         setupFetchedResultsController()
         tableView.reloadData()
+        print("search finished editing")
         
     }
     
@@ -306,7 +310,7 @@ extension SearchViewController: UISearchBarDelegate {
         searchViewModel.searchCompleted = true
     }
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        resignFirstResponder()
+        searchBar.resignFirstResponder()
     }
     
 }
