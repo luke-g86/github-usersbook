@@ -125,7 +125,7 @@ extension SearchViewController: UISearchBarDelegate {
             search(searchQuery)
             
             //            if fetchedResultsController.fetchedObjects?.count == 0 {
-//            searchViewModel.searchingUser = searchQuery
+            searchViewModel.searchingUser = searchQuery
             searchViewModel.fetchSearchedUsers()
             //            }
         }
@@ -149,8 +149,8 @@ extension SearchViewController: UISearchBarDelegate {
         } catch {
             print(error.localizedDescription)
         }
+       
         tableView.reloadData()
-        
     }
     
     //MARK: - Network
@@ -222,28 +222,53 @@ extension SearchViewController: UISearchBarDelegate {
     
     func fetchedDataProcessor(_ data: [Users]) {
         
-        print(data.count)
-        
+        print("data count: \(data.count)")
                 let matchingRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
-                dataController.viewContext.performAndWait {
+//                dataController.viewContext.performAndWait {
                     let login = data.map {$0.login}.compactMap{$0}
-                    matchingRequest.predicate = NSPredicate(format: "login ==[c] %@", argumentArray: [login])
+                    print("map from login: \(login)")
+                    matchingRequest.predicate = NSPredicate(format: "login CONTAINS[cdw] %@", argumentArray: [login])
         
                     let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: matchingRequest)
                     batchDeleteRequest.resultType = .resultTypeObjectIDs
         
                     do {
                         let batchDeleteResult = try dataController.viewContext.execute(batchDeleteRequest) as? NSBatchDeleteResult
+                        
+                        
+                        let changes: [AnyHashable: Any] = [NSDeletedObjectsKey: batchDeleteResult?.result as! [NSManagedObjectID]]
+                        
+                        NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [dataController.viewContext])
+                        
+                        print("deleted \(changes)")
+                        
+                        
+                        dataController.viewContext.reset()
+                        
+                        try self.fetchedResultsController.performFetch()
+                        tableView.reloadData()
+                        
+                  
+                        
+                      
         
-                        if let deletedObjectIDs = batchDeleteResult?.result as? [NSManagedObjectID] {
-        
-                            NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: deletedObjectIDs], into: [dataController.viewContext])
-                        }
+//                        if let deletionChanges: [AnyHashable: Any] = [NSDeletedObjectsKey: batchDeleteResult?.result as? [NSManagedObjectID]] {
+//
+//                            print("deletion changes \(deletionChanges)")
+//                         NSManagedObjectContext.mergeChanges(fromRemoteContextSave: deletionChanges, into: [dataController.viewContext])
+//
+////                            if dataController.viewContext.hasChanges {
+////                                try dataController.viewContext.save()
+////                            }
+//                            tableView.reloadData()
+//                            NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: deletedObjectIDs], into: [dataController.viewContext])
+                        
                     } catch {
                         print("Error: \(error.localizedDescription)")
                         return
                     }
-            
+        
+
             
             DispatchQueue.main.async {
                 
@@ -278,7 +303,7 @@ extension SearchViewController: UISearchBarDelegate {
                 try? self.dataController.viewContext.save()
             }
         }
-    }
+    
     
     func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
         resignFirstResponder()
@@ -297,8 +322,6 @@ extension SearchViewController: UISearchBarDelegate {
         cleaningDatabase()
         setupFetchedResultsController()
         tableView.reloadData()
-        print("search finished editing")
-        
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -363,6 +386,7 @@ extension SearchViewController: UITableViewDataSourcePrefetching {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "showDetails", sender: nil)
+        searchViewModel.searchCompleted = true
         selection = true
         
     }
